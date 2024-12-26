@@ -21,7 +21,7 @@ https://asciidwango.jp/post/754242099814268928/関数型ドメインモデリン
     - https://github.com/K-Bokka/amazing_h_book
 - 最近、Scala触ってないし、Scala3触ってみたい
 
-## 構成
+## ディレクトリ構成
 
 こんな感じのディレクトリ構成にする
 ```console
@@ -32,3 +32,10 @@ https://asciidwango.jp/post/754242099814268928/関数型ドメインモデリン
 │   └── chap_04
 └── README.md
 ```
+
+## 実行環境
+- マシン
+  - MacBook Pro 2024
+- ツール
+  - F#: Rider
+  - Scala: IntelliJ IDEA
