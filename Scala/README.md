@@ -62,7 +62,7 @@ sbt script version: 1.10.5
 
 ```console
 .
-├── Scala/  <- ベースディレクトリ
+├── scala/  <- ベースディレクトリ
 │   ├── README.md
 │   └── chap04/ <- サブプロジェクト
 │       └── src/
@@ -70,6 +70,41 @@ sbt script version: 1.10.5
 
 ### 作り方
 
-IntelliJ が自動認識しないので苦戦中...
+とりあえず、テンプレートを使ってディレクトリを作成
+```console
+$ cd <this repository root>
+$ sbt new scala/scala3.g8
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+A template to demonstrate a minimal Scala 3 application 
 
-頑張って設定せねば...
+name [Scala 3 Project Template]: Scala
+
+Template applied in <this repository root>/./scala
+
+$ cd scala 
+$ sbt clean compile run
+[info] welcome to sbt 1.10.7 (Eclipse Adoptium Java 17.0.13)
+
+...
+
+[success] Total time: 1 s, completed 2024/12/28 11:08:46
+[info] running hello 
+Hello world!
+I was compiled by Scala 3. :)
+[success] Total time: 0 s, completed 2024/12/28 11:08:46
+$ sbt clean compile test
+[info] welcome to sbt 1.10.7 (Eclipse Adoptium Java 17.0.13)
+
+...
+
+MySuite:
+  + example test that succeeds 0.003s
+[info] Passed: Total 1, Failed 0, Errors 0, Passed 1
+[success] Total time: 1 s, completed 2024/12/28 11:08:53
+```
+
+### IntelliJ での設定
+
+紆余曲折があったが、素直に <repo-root>/scala を project として開くのが一番楽だった

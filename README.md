@@ -30,7 +30,7 @@ https://asciidwango.jp/post/754242099814268928/関数型ドメインモデリン
 ├── F#/
 │   ├── chap04/
 │   └── README.md
-├── Scala/
+├── scala/
 │   ├── chap04/
 │   └── README.md
 └── README.md
