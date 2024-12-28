@@ -105,6 +105,31 @@ MySuite:
 [success] Total time: 1 s, completed 2024/12/28 11:08:53
 ```
 
+サブプロジェクトはディレクトリを作って、 build.sbt をいじるのが一番楽そう  
+サブプロジェクトは root から切り替えられる
+
+```console
+$ cd <repo-root>/scala
+$ sbt
+...
+[info] started sbt server
+sbt:root> projects
+[info] In file:<repo-root>/scala/
+[info]     chap04
+[info]   * root
+sbt:root> projects
+[info] In file:<repo-root>/scala/
+[info]     chap04
+[info]   * root
+sbt:root> project chap04
+[info] set current project to chap04 (in build file:<repo-root>/scala/)
+sbt:chap04> run
+[info] running hello 
+Hello world!!
+I was compiled by Scala 3. ;)
+[success] Total time: 1 s, completed 2024/12/28 11:57:44
+```
+
 ### IntelliJ での設定
 
 紆余曲折があったが、素直に <repo-root>/scala を project として開くのが一番楽だった
