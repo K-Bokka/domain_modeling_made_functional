@@ -72,7 +72,7 @@ sbt script version: 1.10.5
 
 とりあえず、テンプレートを使ってディレクトリを作成
 ```console
-$ cd <this repository root>
+$ cd <repo-root>
 $ sbt new scala/scala3.g8
 SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
 SLF4J: Defaulting to no-operation (NOP) logger implementation
@@ -81,7 +81,7 @@ A template to demonstrate a minimal Scala 3 application
 
 name [Scala 3 Project Template]: Scala
 
-Template applied in <this repository root>/./scala
+Template applied in <repo-root>/./scala
 
 $ cd scala 
 $ sbt clean compile run
@@ -108,3 +108,37 @@ MySuite:
 ### IntelliJ での設定
 
 紆余曲折があったが、素直に <repo-root>/scala を project として開くのが一番楽だった
+
+## REPL の使い方
+
+```console
+$ cd <repo-root>/scala
+$ sbt console
+
+...
+
+Welcome to Scala 3.6.2 (17.0.13, Java OpenJDK 64-Bit Server VM).
+Type in expressions for evaluation. Or try :help.
+
+scala> :help
+The REPL has several commands available:
+
+:help                    print this summary
+:load <path>             interpret lines in a file
+:quit                    exit the interpreter
+:type <expression>       evaluate the type of the given expression
+:doc <expression>        print the documentation for the given expression
+:imports                 show import history
+:reset [options]         reset the repl to its initial state, forgetting all session entries
+:settings <options>      update compiler options, if possible
+
+scala> def square(x: Int) = x * x
+def square(x: Int): Int
+
+scala> square(3)
+val res0: Int = 9
+
+scala> :quit
+
+[success] Total time: 45 s, completed 2024/12/28 11:25:11
+```
