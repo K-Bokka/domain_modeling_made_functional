@@ -25,7 +25,7 @@ https://dotnet.microsoft.com/ja-jp/download ここから pkg をダウンロー�
 
 ### 作り方
 ```console
-$ cd <this repository root>
+$ cd <repo-root>
 $ dotnet new sln -o "F#"               
 テンプレート "ソリューション ファイル" が正常に作成されました。
 
