@@ -17,3 +17,31 @@ let areEqual x y = (x = y)
 
 printfn $"ex) areEqual 2 3 -> {areEqual 2 3}"
 printfn $"ex) areEqual 4.2 4.2 -> {areEqual 4.2 4.2}"
+
+printfn "\nChapter 4.3"
+
+type AppleVariety =
+    | GoldenDelicious
+    | GrannySmith
+    | Fuji
+
+type BananaVariety =
+    | Cavendish
+    | GrosMichel
+    | Manzano
+
+type CherryVariety =
+    | Montmorency
+    | Bing
+
+type FruitSalad =
+    { Apple: AppleVariety
+      Banana: BananaVariety
+      Cherry: CherryVariety }
+
+type FruitSnack =
+    | Apple of AppleVariety
+    | Banana of BananaVariety
+    | Cherry of CherryVariety
+
+type ProductCode = ProductCode of string
