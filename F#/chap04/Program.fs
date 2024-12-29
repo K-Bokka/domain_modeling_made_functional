@@ -1,4 +1,5 @@
-﻿//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+﻿open System
+
 printfn "Chapter 4.1"
 let add1 x = x + 1
 
@@ -73,6 +74,51 @@ let printQuantity aOrderQty =
     match aOrderQty with
     | UnitQuantity uQty -> printfn $"{uQty} units"
     | KilogramQuantity kgQty -> printfn $"{kgQty} kg"
-    
+
 printQuantity anOrderQtyInUnits
 printQuantity anOrderQtyInKg
+
+//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+printfn "\nChapter 4.5"
+
+type CheckNumber = CheckNumber of int
+type CardNumber = CardNumber of string
+
+type CardType =
+    | Visa
+    | Master
+
+type CreditCardInfo =
+    { CardType: CardType
+      CardNumber: CardNumber }
+
+type PaymentMethod =
+    | Cash
+    | Check of CheckNumber
+    | Card of CardNumber
+
+type PaymentAmount = PaymentAmount of decimal
+
+type Currency =
+    | EUR
+    | USD
+
+type Payment =
+    { Amount: PaymentAmount
+      Currency: Currency
+      Method: PaymentMethod }
+
+type UnpaidInvoice =
+    { Amount: PaymentAmount
+      Currency: Currency }
+
+type PaidInvoice =
+    { Amount: PaymentAmount
+      Currency: Currency
+      Method: PaymentMethod
+      Date: DateTime }
+
+
+type PayInvoice = UnpaidInvoice -> Payment -> PaidInvoice
+type ConvertPaymentCurrency = Payment -> Currency -> Payment
+
