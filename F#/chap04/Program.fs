@@ -118,7 +118,74 @@ type PaidInvoice =
       Method: PaymentMethod
       Date: DateTime }
 
-
-type PayInvoice = UnpaidInvoice -> Payment -> PaidInvoice
+// Move to Chapter 4.6
+// type PayInvoice = UnpaidInvoice -> Payment -> PaidInvoice
 type ConvertPaymentCurrency = Payment -> Currency -> Payment
 
+//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+printfn "\nChapter 4.6"
+
+type PersonalName =
+    { FirstName: string
+      MiddleInitial: string option
+      LastName: string }
+
+let aFullPersonalName =
+    { FirstName = "Alex"
+      MiddleInitial = Some "Adam"
+      LastName = "Adams" }
+
+let aPersonalName =
+    { FirstName = "Alex"
+      MiddleInitial = None
+      LastName = "Adams" }
+
+let printName pn =
+    match pn.MiddleInitial with
+    | Some x -> printfn $"I'm {pn.FirstName} {x} {pn.LastName}"
+    | None -> printfn $"I'm {pn.FirstName} {pn.LastName}"
+
+printName aPersonalName
+printName aFullPersonalName
+
+type PaymentError =
+    | CardTypeNotRecognized
+    | PaymentRejected
+    | PaymentProviderOffline
+
+type PayInvoice = UnpaidInvoice -> Payment -> Result<PaidInvoice, PaymentError>
+
+type Customer = Customer of string
+type SaveCustomer = Customer -> unit
+
+type NextRandom = unit -> unit
+
+type OrderId = OrderId of int
+type OrderLine = OrderLine of string
+
+type Order =
+    { OrderId: OrderId
+      Lines: OrderLine list }
+
+let aList = [ 1; 2; 3 ]
+
+printfn $"{aList}"
+
+let aNewList = 0 :: aList
+
+printfn $"{aNewList}"
+
+let printList1 aList =
+    match aList with
+    | [] -> printfn "list is empty"
+    | [ x ] -> printfn $"list has one element: {x}"
+    | [ x; y ] -> printfn $"list has two elements: {x} and {y}"
+    | _ -> printfn $"list has more than two elements"
+
+let printList2 aList =
+    match aList with
+    | [] -> printfn "list is empty"
+    | first :: _ -> printfn $"list is non-empty with the first element being: {first}"
+
+printList1 aList
+printList2 aList
