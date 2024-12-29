@@ -1,191 +1,180 @@
-﻿open System
+﻿module Chap0401 =
+    printfn "Chapter 4.1"
 
-printfn "Chapter 4.1"
-let add1 x = x + 1
+    let add1 x = x + 1
+    printfn $"ex) add1 2 -> {add1 2}"
 
-printfn $"ex) add1 2 -> {add1 2}"
+    let add x y = x + y
+    printfn $"ex) add 2 4 -> {add 2 4}"
 
-let add x y = x + y
+    let squarePlusOne x =
+        let square = x * x
+        square + 1
 
-printfn $"ex) add 2 4 -> {add 2 4}"
+    printfn $"ex) squarePlusOne 3 -> {squarePlusOne 3}"
 
-let squarePlusOne x =
-    let square = x * x
-    square + 1
+    let areEqual x y = (x = y)
+    printfn $"ex) areEqual 2 3 -> {areEqual 2 3}"
+    printfn $"ex) areEqual 4.2 4.2 -> {areEqual 4.2 4.2}"
 
-printfn $"ex) squarePlusOne 3 -> {squarePlusOne 3}"
+    printfn ""
 
-let areEqual x y = (x = y)
+module Chap0403 =
+    printfn "Chapter 4.3"
 
-printfn $"ex) areEqual 2 3 -> {areEqual 2 3}"
-printfn $"ex) areEqual 4.2 4.2 -> {areEqual 4.2 4.2}"
+    type AppleVariety =
+        | GoldenDelicious
+        | GrannySmith
+        | Fuji
 
-//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-printfn "\nChapter 4.3"
+    type BananaVariety =
+        | Cavendish
+        | GrosMichel
+        | Manzano
 
-type AppleVariety =
-    | GoldenDelicious
-    | GrannySmith
-    | Fuji
+    type CherryVariety =
+        | Montmorency
+        | Bing
 
-type BananaVariety =
-    | Cavendish
-    | GrosMichel
-    | Manzano
+    type FruitSalad =
+        { Apple: AppleVariety
+          Banana: BananaVariety
+          Cherry: CherryVariety }
 
-type CherryVariety =
-    | Montmorency
-    | Bing
+    type FruitSnack =
+        | Apple of AppleVariety
+        | Banana of BananaVariety
+        | Cherry of CherryVariety
 
-type FruitSalad =
-    { Apple: AppleVariety
-      Banana: BananaVariety
-      Cherry: CherryVariety }
+    type ProductCode = ProductCode of string
 
-type FruitSnack =
-    | Apple of AppleVariety
-    | Banana of BananaVariety
-    | Cherry of CherryVariety
+    printfn ""
 
-type ProductCode = ProductCode of string
+module Chap0404 =
+    printfn "Chapter 4.4"
+    type Person = { First: string; Last: string }
+    let aPerson = { First = "Alex"; Last = "Adams" }
+    let { First = first; Last = last } = aPerson
+    let firstEx = $"{aPerson.First}!"
+    let lastEx = $"{aPerson.Last}!"
+    printfn $"First name is {first}, last name is {last}"
+    printfn $"First! name is {firstEx}, last! name is {lastEx}"
 
-//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-printfn "\nChapter 4.4"
+    type OrderQuantity =
+        | UnitQuantity of int
+        | KilogramQuantity of decimal
 
-type Person = { First: string; Last: string }
+    let anOrderQtyInUnits = UnitQuantity 10
+    let anOrderQtyInKg = KilogramQuantity 2.5m
 
-let aPerson = { First = "Alex"; Last = "Adams" }
+    let printQuantity aOrderQty =
+        match aOrderQty with
+        | UnitQuantity uQty -> printfn $"{uQty} units"
+        | KilogramQuantity kgQty -> printfn $"{kgQty} kg"
 
-let { First = first; Last = last } = aPerson
-let firstEx = $"{aPerson.First}!"
-let lastEx = $"{aPerson.Last}!"
+    printQuantity anOrderQtyInUnits
+    printQuantity anOrderQtyInKg
 
-printfn $"First name is {first}, last name is {last}"
-printfn $"First! name is {firstEx}, last! name is {lastEx}"
+    printfn ""
 
-type OrderQuantity =
-    | UnitQuantity of int
-    | KilogramQuantity of decimal
+module Chap0405 =
+    printfn "Chapter 4.5"
+    type CheckNumber = CheckNumber of int
+    type CardNumber = CardNumber of string
 
-let anOrderQtyInUnits = UnitQuantity 10
-let anOrderQtyInKg = KilogramQuantity 2.5m
+    type CardType =
+        | Visa
+        | Master
 
-let printQuantity aOrderQty =
-    match aOrderQty with
-    | UnitQuantity uQty -> printfn $"{uQty} units"
-    | KilogramQuantity kgQty -> printfn $"{kgQty} kg"
+    type CreditCardInfo =
+        { CardType: CardType
+          CardNumber: CardNumber }
 
-printQuantity anOrderQtyInUnits
-printQuantity anOrderQtyInKg
+    type PaymentMethod =
+        | Cash
+        | Check of CheckNumber
+        | Card of CardNumber
 
-//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-printfn "\nChapter 4.5"
+    type PaymentAmount = PaymentAmount of decimal
 
-type CheckNumber = CheckNumber of int
-type CardNumber = CardNumber of string
+    type Currency =
+        | EUR
+        | USD
 
-type CardType =
-    | Visa
-    | Master
+    type Payment =
+        { Amount: PaymentAmount
+          Currency: Currency
+          Method: PaymentMethod }
 
-type CreditCardInfo =
-    { CardType: CardType
-      CardNumber: CardNumber }
+    type UnpaidInvoice = Undefined
+    type PaidInvoice = Undefined
+    // Move to Chapter 4.6
+    // type PayInvoice = UnpaidInvoice -> Payment -> PaidInvoice
+    type ConvertPaymentCurrency = Payment -> Currency -> Payment
 
-type PaymentMethod =
-    | Cash
-    | Check of CheckNumber
-    | Card of CardNumber
+    printfn ""
 
-type PaymentAmount = PaymentAmount of decimal
+module Chap0406 =
+    printfn "\nChapter 4.6"
 
-type Currency =
-    | EUR
-    | USD
+    type PersonalName =
+        { FirstName: string
+          MiddleInitial: string option
+          LastName: string }
 
-type Payment =
-    { Amount: PaymentAmount
-      Currency: Currency
-      Method: PaymentMethod }
+    let aFullPersonalName =
+        { FirstName = "Alex"
+          MiddleInitial = Some "Adam"
+          LastName = "Adams" }
 
-type UnpaidInvoice =
-    { Amount: PaymentAmount
-      Currency: Currency }
+    let aPersonalName =
+        { FirstName = "Alex"
+          MiddleInitial = None
+          LastName = "Adams" }
 
-type PaidInvoice =
-    { Amount: PaymentAmount
-      Currency: Currency
-      Method: PaymentMethod
-      Date: DateTime }
+    let printName pn =
+        match pn.MiddleInitial with
+        | Some x -> printfn $"I'm {pn.FirstName} {x} {pn.LastName}"
+        | None -> printfn $"I'm {pn.FirstName} {pn.LastName}"
 
-// Move to Chapter 4.6
-// type PayInvoice = UnpaidInvoice -> Payment -> PaidInvoice
-type ConvertPaymentCurrency = Payment -> Currency -> Payment
+    printName aPersonalName
+    printName aFullPersonalName
 
-//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-printfn "\nChapter 4.6"
+    type PaymentError =
+        | CardTypeNotRecognized
+        | PaymentRejected
+        | PaymentProviderOffline
 
-type PersonalName =
-    { FirstName: string
-      MiddleInitial: string option
-      LastName: string }
+    type PayInvoice = Chap0405.UnpaidInvoice -> Chap0405.Payment -> Result<Chap0405.PaidInvoice, PaymentError>
 
-let aFullPersonalName =
-    { FirstName = "Alex"
-      MiddleInitial = Some "Adam"
-      LastName = "Adams" }
+    type Customer = Customer of string
+    type SaveCustomer = Customer -> unit
+    type NextRandom = unit -> unit
 
-let aPersonalName =
-    { FirstName = "Alex"
-      MiddleInitial = None
-      LastName = "Adams" }
+    type OrderId = OrderId of int
+    type OrderLine = OrderLine of string
 
-let printName pn =
-    match pn.MiddleInitial with
-    | Some x -> printfn $"I'm {pn.FirstName} {x} {pn.LastName}"
-    | None -> printfn $"I'm {pn.FirstName} {pn.LastName}"
+    type Order =
+        { OrderId: OrderId
+          Lines: OrderLine list }
 
-printName aPersonalName
-printName aFullPersonalName
+    let aList = [ 1; 2; 3 ]
+    printfn $"{aList}"
 
-type PaymentError =
-    | CardTypeNotRecognized
-    | PaymentRejected
-    | PaymentProviderOffline
+    let aNewList = 0 :: aList
+    printfn $"{aNewList}"
 
-type PayInvoice = UnpaidInvoice -> Payment -> Result<PaidInvoice, PaymentError>
+    let printList1 aList =
+        match aList with
+        | [] -> printfn "list is empty"
+        | [ x ] -> printfn $"list has one element: {x}"
+        | [ x; y ] -> printfn $"list has two elements: {x} and {y}"
+        | _ -> printfn $"list has more than two elements"
 
-type Customer = Customer of string
-type SaveCustomer = Customer -> unit
+    let printList2 aList =
+        match aList with
+        | [] -> printfn "list is empty"
+        | first :: _ -> printfn $"list is non-empty with the first element being: {first}"
 
-type NextRandom = unit -> unit
-
-type OrderId = OrderId of int
-type OrderLine = OrderLine of string
-
-type Order =
-    { OrderId: OrderId
-      Lines: OrderLine list }
-
-let aList = [ 1; 2; 3 ]
-
-printfn $"{aList}"
-
-let aNewList = 0 :: aList
-
-printfn $"{aNewList}"
-
-let printList1 aList =
-    match aList with
-    | [] -> printfn "list is empty"
-    | [ x ] -> printfn $"list has one element: {x}"
-    | [ x; y ] -> printfn $"list has two elements: {x} and {y}"
-    | _ -> printfn $"list has more than two elements"
-
-let printList2 aList =
-    match aList with
-    | [] -> printfn "list is empty"
-    | first :: _ -> printfn $"list is non-empty with the first element being: {first}"
-
-printList1 aList
-printList2 aList
+    printList1 aList
+    printList2 aList
