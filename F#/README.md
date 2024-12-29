@@ -43,6 +43,17 @@ $ dotnet new console -lang F# -n chap04
 
 $ dotnet sln add chap04/chap04.fsproj  
 プロジェクト `chap04/chap04.fsproj` をソリューションに追加しました。
+
+$ dotnet build
+復元が完了しました (0.2 秒)
+  chap04 成功しました (0.1 秒) → chap04/bin/Debug/net9.0/chap04.dll
+
+0.4 秒後に 成功しました をビルド
+$ dotnet run --project chap04
+Hello from F#
+$ cd chap04
+$ dotnet run
+Hello from F#
 ```
 
 後は Rider でこのリポジトリを開くと自動で認識して、実行可能な状態まで持って行ってくれます
