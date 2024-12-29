@@ -106,9 +106,9 @@ module Chap0405 =
           Currency: Currency
           Method: PaymentMethod }
 
-    type UnpaidInvoice = Undefined
-    type PaidInvoice = Undefined
     // Move to Chapter 4.6
+    // type UnpaidInvoice = Undefined
+    // type PaidInvoice = Undefined
     // type PayInvoice = UnpaidInvoice -> Payment -> PaidInvoice
     type ConvertPaymentCurrency = Payment -> Currency -> Payment
 
@@ -140,12 +140,15 @@ module Chap0406 =
     printName aPersonalName
     printName aFullPersonalName
 
+    type UnpaidInvoice = Undefined
+    type PaidInvoice = Undefined
+
     type PaymentError =
         | CardTypeNotRecognized
         | PaymentRejected
         | PaymentProviderOffline
 
-    type PayInvoice = Chap0405.UnpaidInvoice -> Chap0405.Payment -> Result<Chap0405.PaidInvoice, PaymentError>
+    type PayInvoice = UnpaidInvoice -> Chap0405.Payment -> Result<PaidInvoice, PaymentError>
 
     type Customer = Customer of string
     type SaveCustomer = Customer -> unit
