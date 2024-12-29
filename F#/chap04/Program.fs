@@ -1,4 +1,5 @@
-﻿printfn "Chapter 4.1"
+﻿//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+printfn "Chapter 4.1"
 let add1 x = x + 1
 
 printfn $"ex) add1 2 -> {add1 2}"
@@ -18,6 +19,7 @@ let areEqual x y = (x = y)
 printfn $"ex) areEqual 2 3 -> {areEqual 2 3}"
 printfn $"ex) areEqual 4.2 4.2 -> {areEqual 4.2 4.2}"
 
+//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 printfn "\nChapter 4.3"
 
 type AppleVariety =
@@ -45,3 +47,32 @@ type FruitSnack =
     | Cherry of CherryVariety
 
 type ProductCode = ProductCode of string
+
+//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+printfn "\nChapter 4.4"
+
+type Person = { First: string; Last: string }
+
+let aPerson = { First = "Alex"; Last = "Adams" }
+
+let { First = first; Last = last } = aPerson
+let firstEx = $"{aPerson.First}!"
+let lastEx = $"{aPerson.Last}!"
+
+printfn $"First name is {first}, last name is {last}"
+printfn $"First! name is {firstEx}, last! name is {lastEx}"
+
+type OrderQuantity =
+    | UnitQuantity of int
+    | KilogramQuantity of decimal
+
+let anOrderQtyInUnits = UnitQuantity 10
+let anOrderQtyInKg = KilogramQuantity 2.5m
+
+let printQuantity aOrderQty =
+    match aOrderQty with
+    | UnitQuantity uQty -> printfn $"{uQty} units"
+    | KilogramQuantity kgQty -> printfn $"{kgQty} kg"
+    
+printQuantity anOrderQtyInUnits
+printQuantity anOrderQtyInKg
