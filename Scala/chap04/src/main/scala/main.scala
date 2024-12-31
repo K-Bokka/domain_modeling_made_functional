@@ -1,5 +1,6 @@
 import Chap0404.*
 import Chap0404.OrderQuantity.{KilogramQuantity, UnitQuantity}
+import Chap0405.{Currency, Payment}
 
 @main def hello(): Unit =
   println("Chapter 4.1")
@@ -27,3 +28,5 @@ import Chap0404.OrderQuantity.{KilogramQuantity, UnitQuantity}
   OrderQuantity2.printQuantity(anOrderQtyInUnits2)
   OrderQuantity2.printQuantity(anOrderQtyInKg2)
   println()
+
+  type ConvertPaymentCurrency = Payment => Currency => Payment
