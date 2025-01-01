@@ -1,4 +1,4 @@
-object Chap0401 {
+object Chap0401:
   def add1(x: Int): Int = x + 1
 
   def add(x: Int, y: Int): Int = x + y
@@ -9,4 +9,3 @@ object Chap0401 {
     square(x) + 1
 
   def areEqual[T](x: T, y: T): Boolean = x == y
-}
