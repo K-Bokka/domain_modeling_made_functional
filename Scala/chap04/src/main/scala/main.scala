@@ -1,6 +1,7 @@
 import Chap0404.*
 import Chap0404.OrderQuantity.{KilogramQuantity, UnitQuantity}
 import Chap0405.{Currency, Payment}
+import chap0406.PersonalName
 
 @main def hello(): Unit =
   println("Chapter 4.1")
@@ -29,4 +30,12 @@ import Chap0405.{Currency, Payment}
   OrderQuantity2.printQuantity(anOrderQtyInKg2)
   println()
 
+  println("Chapter 4.5")
   type ConvertPaymentCurrency = Payment => Currency => Payment
+  println()
+
+  println("Chapter 4.6")
+  val aFullPersonalName = PersonalName("Alex", Some("Adam"), "Adams")
+  val aPersonalName = PersonalName("Alex", None, "Adams")
+  PersonalName.printName(aFullPersonalName)
+  PersonalName.printName(aPersonalName)
