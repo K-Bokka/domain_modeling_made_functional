@@ -1,4 +1,6 @@
 ﻿open Chap0503.C050301
+open Chap0505
+open Chap0507
 open Program.Chap0406
 
 printfn "Chapter 5.3"
@@ -42,3 +44,15 @@ let name2 =
       LastName = "Adams" }
 
 printfn $"name1 = name2 : {name1 = name2}"
+
+printfn ""
+printfn "Chapter 5.7"
+
+let printInvoiceId invoice =
+    match invoice with
+    | C050702a.Invoice.Unpaid iv -> printfn $"The unpaid invoiceId is {iv.InvoiceId}"
+    | C050702a.Invoice.Paid iv -> printfn $"The paid invoiceId is {iv.InvoiceId}"
+
+let invoice = C050702a.Paid { InvoiceId = "hoge" }
+
+printInvoiceId invoice
