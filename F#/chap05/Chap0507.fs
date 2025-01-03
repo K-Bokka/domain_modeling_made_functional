@@ -53,3 +53,7 @@ module C050703a =
           EmailAddress: EmailAddress }
 
         member this.Key = (this.PhoneNumber, this.EmailAddress)
+
+type PersonId = PersonId of int
+
+type Person = { PersonId: PersonId; Name: string }

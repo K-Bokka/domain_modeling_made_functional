@@ -85,5 +85,15 @@ printfn
     """
 ./domain_modeling_made_functional/F#/chap05/Program.fs(83,34): error FS0001: The type 'C050703a.Contact' does not support the 'equality' constraint because it has the 'NoEquality' attribute
 """
+
 printfn $"contact3.ContactId = contact4.ContactId : {contact3.ContactId = contact4.ContactId}"
 printfn $"contact3.Key = contact4.Key : {contact3.Key = contact4.Key}"
+
+let initialPerson =
+    { PersonId = PersonId 42
+      Name = "Joseph" }
+
+printfn $"Initial name is {initialPerson.Name}"
+
+let updatedPerson = { initialPerson with Name = "Joe" }
+printfn $"Updated name is {updatedPerson.Name}"
