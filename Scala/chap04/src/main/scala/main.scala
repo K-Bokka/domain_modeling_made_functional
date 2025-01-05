@@ -17,17 +17,10 @@ import chap0406.PersonalName
   val Person(firstName, lastName) = aPerson
   println(s"First name is $firstName, last name is $lastName")
 
-  // 列挙型を使う場合
   val anOrderQtyInUnits = UnitQuantity(10)
   val anOrderQtyInKg = KilogramQuantity(2.5)
   OrderQuantity.printQuantity(anOrderQtyInUnits)
   OrderQuantity.printQuantity(anOrderQtyInKg)
-
-  // UNION型を使う場合
-  val anOrderQtyInUnits2: UnitQuantity2 = 10
-  val anOrderQtyInKg2: KilogramQuantity2 = 2.5
-  OrderQuantity2.printQuantity(anOrderQtyInUnits2)
-  OrderQuantity2.printQuantity(anOrderQtyInKg2)
   println()
 
   println("Chapter 4.5")
