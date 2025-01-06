@@ -18,3 +18,7 @@ lazy val chap04 = project
 lazy val chap05 = project
   .in(file("chap05"))
   .settings(commonSettings)
+
+lazy val ordertaking = project
+  .in(file("ordertaking"))
+  .settings(commonSettings)
