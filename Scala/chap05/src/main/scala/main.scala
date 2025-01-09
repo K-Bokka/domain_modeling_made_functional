@@ -2,8 +2,8 @@ import Chap0503.C050301.*
 import Chap0507.C050702a.Invoice
 import Chap0507.C050702a.Invoice.{Paid, Unpaid}
 import Chap0507.C050703.Contact
-import Chap0507.C050703a.{Contact => Contact2}
-import Chap0507.{ContactId, EmailAddress, InvoiceId, PhoneNumber}
+import Chap0507.C050703a.Contact as Contact2
+import Chap0507.{ContactId, EmailAddress, InvoiceId, Person, PersonId, PhoneNumber}
 
 @main def hello(): Unit =
   println("Chapter 5.3")
@@ -80,3 +80,11 @@ import Chap0507.{ContactId, EmailAddress, InvoiceId, PhoneNumber}
   // println(s"contact3.ContactId = contact4.ContactId : ${contact3.contactId == contact4.contactId}")
   // これは比較できる
   println(s"contact3.Key = contact4.Key : ${contact3.key == contact4.key}")
+
+  val initPerson = Person(PersonId(42), "Bob")
+
+  println(s"Initial name is ${initPerson.name}")
+
+  val updatedPerson = initPerson.copy(name = "Robert")
+
+  println(s"Updated name is ${updatedPerson.name}")
