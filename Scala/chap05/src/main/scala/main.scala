@@ -1,7 +1,9 @@
 import Chap0503.C050301.*
 import Chap0507.C050702a.Invoice
 import Chap0507.C050702a.Invoice.{Paid, Unpaid}
-import Chap0507.InvoiceId
+import Chap0507.C050703.Contact
+import Chap0507.C050703a.{Contact => Contact2}
+import Chap0507.{ContactId, EmailAddress, InvoiceId, PhoneNumber}
 
 @main def hello(): Unit =
   println("Chapter 5.3")
@@ -61,3 +63,20 @@ import Chap0507.InvoiceId
   val invoice = Paid(InvoiceId("hoge"))
 
   printInvoiceId(invoice)
+
+  val contactId = ContactId(42)
+
+  val contact1 = Contact(contactId, PhoneNumber("123-456-7890"), EmailAddress("bob@example.com"))
+  val contact2 = Contact(contactId, PhoneNumber("123-456-7890"), EmailAddress("robert@example.com"))
+
+  println(s"contact1 = contact2 : ${contact1 == contact2}") // true
+
+  val contact3 = Contact2(contactId, PhoneNumber("123-456-7890"), EmailAddress("bob@example.com"))
+  val contact4 = Contact2(contactId, PhoneNumber("123-456-7890"), EmailAddress("robert@example.com"))
+
+  // エラーにはならない。ただ、case class じゃないので、Java の Object.equals が呼び出されている
+  println(s"contact3 = contact4 : ${contact3 == contact4}") // false
+  // case class じゃないのでプロパティを参照するメソッドはない。普通にエラーになる
+  // println(s"contact3.ContactId = contact4.ContactId : ${contact3.contactId == contact4.contactId}")
+  // これは比較できる
+  println(s"contact3.Key = contact4.Key : ${contact3.key == contact4.key}")
