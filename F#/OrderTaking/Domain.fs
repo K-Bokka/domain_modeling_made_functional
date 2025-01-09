@@ -3,7 +3,7 @@ namespace OrderTaking.Domain
 // 製品コード関連
 /// TODO: 制約: 先頭が "W" + 数字4桁
 type WidgetCode = WidgetCode of string
-/// TODO: 制約: 先頭が "W" + 数字4桁
+/// TODO: 制約: 先頭が "G" + 数字3桁
 type GizmoCode = GizmoCode of string
 
 type ProductCode =
