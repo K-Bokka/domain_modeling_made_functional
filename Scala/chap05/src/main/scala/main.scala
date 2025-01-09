@@ -20,7 +20,7 @@ import Chap0503.C050301.*
       |[error]    |      value eq is not a member of Chap0503.C050301.CustomerId2.
       |""".stripMargin)
 
-  def processCustomerId(id: CustomerId) = println(s"Customer ID is $id")
+  def processCustomerId(id: CustomerId): Unit = println(s"Customer ID is $id")
   //  processCustomerId(orderId)
   println(
     """
@@ -41,3 +41,9 @@ import Chap0503.C050301.*
 
   println
   println("Chapter 5.6")
+
+  val widgetCode1 = WidgetCode("w1234")
+  val widgetCode2 = WidgetCode("w1234")
+  println(s"${widgetCode1 == widgetCode2}") // true
+  //  eq は参照先が同じかどうかを見るメソッド ここら辺は明確に動作が違うので割愛
+  println(s"${widgetCode1 eq widgetCode2}") // false:
