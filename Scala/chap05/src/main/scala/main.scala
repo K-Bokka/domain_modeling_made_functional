@@ -1,4 +1,7 @@
 import Chap0503.C050301.*
+import Chap0507.C050702a.Invoice
+import Chap0507.C050702a.Invoice.{Paid, Unpaid}
+import Chap0507.InvoiceId
 
 @main def hello(): Unit =
   println("Chapter 5.3")
@@ -47,3 +50,14 @@ import Chap0503.C050301.*
   println(s"${widgetCode1 == widgetCode2}") // true
   //  eq は参照先が同じかどうかを見るメソッド ここら辺は明確に動作が違うので割愛
   println(s"${widgetCode1 eq widgetCode2}") // false:
+
+  println
+  println("Chapter 5.7")
+
+  def printInvoiceId(invoice: Invoice): Unit = invoice match
+    case iv: Unpaid => println(s"The unpaid invoiceId is ${iv.invoiceId.value}")
+    case iv: Paid => println(s"The paid invoiceId is ${iv.invoiceId.value}")
+
+  val invoice = Paid(InvoiceId("hoge"))
+
+  printInvoiceId(invoice)
