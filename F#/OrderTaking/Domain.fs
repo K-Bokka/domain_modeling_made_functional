@@ -1,18 +1,16 @@
 namespace OrderTaking.Domain
 
 // 製品コード関連
-/// TODO: 制約: 先頭が "W" + 数字4桁
-type WidgetCode = WidgetCode of string
-/// TODO: 制約: 先頭が "G" + 数字3桁
-type GizmoCode = GizmoCode of string
+type WidgetCode = WidgetCode of string // TODO: 制約: 先頭が "W" + 数字4桁
+type GizmoCode = GizmoCode of string // TODO: 制約: 先頭が "G" + 数字3桁
 
 type ProductCode =
     | Widget of WidgetCode
     | Gizmo of GizmoCode
 
 // 注文数量関連
-type UnitQuantity = UnitQuantity of int
-type KilogramQuantity = KilogramQuantity of decimal
+type UnitQuantity = UnitQuantity of int // TODO: 1以上1000以下
+type KilogramQuantity = KilogramQuantity of decimal // TODO: 0.05以上100.00以下
 
 type OrderQuantity =
     | Unit of UnitQuantity

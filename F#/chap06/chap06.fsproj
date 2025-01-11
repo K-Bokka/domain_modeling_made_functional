@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Chap0601.fs" />
+    <Compile Include="Chap0602.fs" />
+    <Compile Include="Chap0603.fs" />
+    <Compile Include="Chap0604.fs" />
+    <Compile Include="Chap0605.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+
+</Project>
