@@ -9,6 +9,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "chap05", "chap05\chap05.fsp
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "OrderTaking", "OrderTaking\OrderTaking.fsproj", "{C8191DD6-CE50-4747-A8BD-0CCA9A0ABC8F}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "chap06", "chap06\chap06.fsproj", "{34323682-F552-4782-9981-0EF6DEAF1FCC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{C8191DD6-CE50-4747-A8BD-0CCA9A0ABC8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C8191DD6-CE50-4747-A8BD-0CCA9A0ABC8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C8191DD6-CE50-4747-A8BD-0CCA9A0ABC8F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{34323682-F552-4782-9981-0EF6DEAF1FCC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{34323682-F552-4782-9981-0EF6DEAF1FCC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{34323682-F552-4782-9981-0EF6DEAF1FCC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{34323682-F552-4782-9981-0EF6DEAF1FCC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
