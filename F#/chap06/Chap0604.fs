@@ -48,3 +48,10 @@ module C0604f =
 
     type Contact =
         { Name: Name; ContactInfo: ContactInfo }
+
+module C060401 =
+    type UnvalidatedAddress = UnvalidatedAddress of string
+    type ValidatedAddress = private UnvalidatedAddress of string
+    type AddressValidationService = UnvalidatedAddress -> ValidatedAddress option
+    type UnvalidatedOrder = { ShippingAddress: UnvalidatedAddress }
+    type ValidatedOrder = { ShippingAddress: ValidatedAddress }
