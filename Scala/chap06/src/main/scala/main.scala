@@ -14,3 +14,9 @@ import sun.security.util.Length
       println(s"Success. Value is $qty")
       val innerValue = qty.value // コンストラクタをオーバーライドしただけなので、パラメータのアクセさは残ってる
       println(s"Inner value is $innerValue")
+
+  println()
+  println("Chapter 6.2")
+  // 組み込み単位系、のような機構はないので割愛
+  // 一応ライブラリはあるっぽい
+  // https://github.com/typelevel/squants
