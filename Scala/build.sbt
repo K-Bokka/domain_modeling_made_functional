@@ -1,9 +1,10 @@
 ThisBuild / organization := "com.example"
 ThisBuild / scalaVersion := "3.6.2"
-ThisBuild / version      := "0.1.0-SNAPSHOT"
+ThisBuild / version := "0.1.0-SNAPSHOT"
 
 lazy val commonSettings = Seq(
-  libraryDependencies += "org.scalameta" %% "munit" % "1.0.3" % Test
+  libraryDependencies += "org.typelevel" %% "cats-core" % "2.12.0",
+  libraryDependencies += "org.scalameta" %% "munit" % "1.0.4" % Test,
 )
 
 lazy val root = project

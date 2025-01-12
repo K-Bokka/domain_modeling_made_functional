@@ -1,5 +1,3 @@
-import sun.security.util.Length
-
 @main def main(): Unit =
   println("Chapter 6.1")
 
@@ -20,3 +18,4 @@ import sun.security.util.Length
   // 組み込み単位系、のような機構はないので割愛
   // 一応ライブラリはあるっぽい
   // https://github.com/typelevel/squants
+  
