@@ -8,6 +8,7 @@
   <ItemGroup>
     <Compile Include="Chap0701.fs" />
     <Compile Include="Chap0702.fs" />
+    <Compile Include="Chap0703.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
