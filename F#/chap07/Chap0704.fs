@@ -1,7 +1,5 @@
 namespace Chap0704
 
-open chap0702
-
 type ProductCode = Undefined
 type ValidatedOrder = Undefined
 
@@ -22,14 +20,48 @@ module C070401 =
             -> UnvalidatedOrder // 入力
             -> Result<ValidatedOrder, ValidationError> // 出力
 
+type PricedOrder = Undefined
+
 module C070402 =
     type Price = Undefined
     type GetProductPrice = ProductCode -> Price
-
-    type PricedOrder = Undefined
 
     type PriceOrder =
         GetProductPrice // 依存関係
             -> ValidatedOrder // 入力
             -> PricedOrder // 出力
 
+
+module C070403 =
+    type EmailAddress = Undefined
+    type HtmlString = HtmlString of string
+
+    type OrderAcknowledgment =
+        { EmailAddress: EmailAddress
+          Letter: HtmlString }
+
+    type CreateOrderAcknowledgmentLetter = PricedOrder -> HtmlString
+
+    type SendOrderAcknowledgmentRetVoid = OrderAcknowledgment -> unit
+    type SendOrderAcknowledgmentRetBool = OrderAcknowledgment -> bool
+
+    type SendResult =
+        | Sent
+        | NotSent
+
+    type SendOrderAcknowledgment = OrderAcknowledgment -> SendResult
+
+    type OrderId = Undefined
+
+    type OrderAcknowledgmentSent =
+        { OrderId: OrderId
+          EmailAddress: EmailAddress }
+
+    type SendOrderAcknowledgmentRetEvent = OrderAcknowledgment -> OrderAcknowledgmentSent option
+
+    type AcknowledgementOrder =
+        CreateOrderAcknowledgmentLetter // 依存関係
+            -> SendOrderAcknowledgment // 依存関係
+            -> PricedOrder // 入力
+            -> OrderAcknowledgmentSent option // 出力
+            
