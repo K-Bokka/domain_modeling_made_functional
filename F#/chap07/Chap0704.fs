@@ -1,9 +1,9 @@
 namespace Chap0704
 
-type ProductCode = Undefined
-type ValidatedOrder = Undefined
-
 module C070401 =
+    type ProductCode = Undefined
+    type ValidatedOrder = Undefined
+
     type CheckProductCodeExits = ProductCode -> bool
 
     type UnvalidatedAddress = Undefined
@@ -20,10 +20,11 @@ module C070401 =
             -> UnvalidatedOrder // 入力
             -> Result<ValidatedOrder, ValidationError> // 出力
 
-type PricedOrder = Undefined
-
 module C070402 =
+    open C070401
+
     type Price = Undefined
+    type PricedOrder = Undefined
     type GetProductPrice = ProductCode -> Price
 
     type PriceOrder =
@@ -33,6 +34,8 @@ module C070402 =
 
 
 module C070403 =
+    open C070402
+
     type EmailAddress = Undefined
     type HtmlString = HtmlString of string
 
@@ -64,4 +67,29 @@ module C070403 =
             -> SendOrderAcknowledgment // 依存関係
             -> PricedOrder // 入力
             -> OrderAcknowledgmentSent option // 出力
-            
+
+
+module C070404 =
+    open chap0702
+    open C070403
+
+    type Address = Undefined
+    type BillingAmount = Undefined
+    type OrderPlaced = PricedOrder
+
+    type BillableOrderPlaced =
+        { OrderId: OrderId
+          BillingAddress: Address
+          AmountToBill: BillingAmount }
+
+    type PlaceOrderResult =
+        { OrderPlaced: OrderPlaced
+          BillableOrderPlaced: BillableOrderPlaced
+          OrderAcknowledgmentSent: OrderAcknowledgmentSent }
+
+    type PlaceOrderEvent =
+        | OrderPlaced of OrderPlaced
+        | BillableOrderPlaced of BillableOrderPlaced
+        | AcknowledgmentSent of OrderAcknowledgmentSent
+
+    type CreateEvents = PricedOrder -> PlaceOrderEvent list
