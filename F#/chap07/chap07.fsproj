@@ -13,6 +13,8 @@
     <Compile Include="Chap0705.fs" />
     <Compile Include="Chap0706.fs" />
     <Compile Include="Chap0707.fs" />
+    <Compile Include="Domain.fs" />
+    <Compile Include="PlaceOrderWorkflow.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
