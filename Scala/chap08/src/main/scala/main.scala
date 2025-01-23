@@ -28,6 +28,8 @@ import scala.language.implicitConversions
 
   println(s"add1ThenSquare 5: ${C080401.add1ThenSquare(5)}")
   println(s"isEvenThenPrint 2: ${C080401.isEvenThenPrint(2)}")
+  
+  5 pipe C080403.add1 pipe Some pipe C080403.printOption
 
 object C080201:
   val plus3: Int => Int = (x: Int) => x + 3
@@ -119,3 +121,10 @@ object C080401:
   def printBool(x: Boolean): String = s"value is $x"
 
   def isEvenThenPrint(x: Int): String = x pipe isEven pipe printBool
+  
+object C080403:
+  def add1(x: Int): Int = x + 1
+  
+  def printOption(x: Option[Int]): Unit = x match
+    case Some(i) => println(s"The int is $i")
+    case None => println("No value")
