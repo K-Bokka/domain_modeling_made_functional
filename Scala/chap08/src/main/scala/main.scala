@@ -52,3 +52,8 @@ object C080203:
     def innerFn(x: Int) = x + num
 
     innerFn
+
+object C080204:
+  def add(x: Int, y: Int): Int = x + y
+
+  def adderGenerator(x: Int): Int => Int = add(x, _)
