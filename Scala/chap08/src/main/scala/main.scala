@@ -1,3 +1,5 @@
+import C0803.NonZeroInteger
+
 @main def main(): Unit =
   println("Chapter 8")
 
@@ -67,3 +69,36 @@ object C080205:
   val sayHello: String => Unit = sayGreeting("Hello", _)
 
   val sayGoodbye: String => Unit = sayGreeting("Goodbye", _)
+
+object C0803:
+  def twelveDivideBy(n: Int): Int = n match
+    case 6 => 2
+    case 5 => 2
+    case 4 => 3
+    case 3 => 4
+    case 2 => 6
+    case 1 => 12
+    case 0 => throw new Exception("Can't divide by zero")
+    case _ => throw new Exception("Unknown input")
+
+  case class NonZeroInteger private(value: Int)
+
+  def twelveDivideBy2(n: NonZeroInteger): Int = n match
+    case NonZeroInteger(6) => 2
+    case NonZeroInteger(5) => 2
+    case NonZeroInteger(4) => 3
+    case NonZeroInteger(3) => 4
+    case NonZeroInteger(2) => 6
+    case NonZeroInteger(1) => 12
+    case NonZeroInteger(0) => throw new Exception("Can't divide by zero") // 制限はまだかけてないが、ここには来ない
+    case _ => throw new Exception("Unknown input") // こっちも
+
+  def twelveDivideBy3(n: Int): Option[Int] = n match
+    case 6 => Some(2)
+    case 5 => Some(2)
+    case 4 => Some(3)
+    case 3 => Some(4)
+    case 2 => Some(6)
+    case 1 => Some(12)
+    case 0 => None
+    case _ => None
