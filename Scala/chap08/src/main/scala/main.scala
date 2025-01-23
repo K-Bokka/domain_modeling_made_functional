@@ -20,6 +20,9 @@
   val add100: Int => Int = C080203.adderGenerator(100)
   println(s"add100(2) : ${add100(2)}")
 
+  C080205.sayHello("Alice")
+  C080205.sayGoodbye("Alice")
+
 object C080201:
   val plus3: Int => Int = (x: Int) => x + 3
 
@@ -57,3 +60,10 @@ object C080204:
   def add(x: Int, y: Int): Int = x + y
 
   def adderGenerator(x: Int): Int => Int = add(x, _)
+
+object C080205:
+  def sayGreeting(greeting: String, name: String): Unit = println(s"$greeting, $name")
+
+  val sayHello: String => Unit = sayGreeting("Hello", _)
+
+  val sayGoodbye: String => Unit = sayGreeting("Goodbye", _)
