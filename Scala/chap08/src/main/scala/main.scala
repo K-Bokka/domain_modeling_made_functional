@@ -1,4 +1,5 @@
-import C0803.NonZeroInteger
+import scala.util.chaining._
+import scala.language.implicitConversions
 
 @main def main(): Unit =
   println("Chapter 8")
@@ -24,6 +25,9 @@ import C0803.NonZeroInteger
 
   C080205.sayHello("Alice")
   C080205.sayGoodbye("Alice")
+
+  println(s"add1ThenSquare 5: ${C080401.add1ThenSquare(5)}")
+  println(s"isEvenThenPrint 2: ${C080401.isEvenThenPrint(2)}")
 
 object C080201:
   val plus3: Int => Int = (x: Int) => x + 3
@@ -102,3 +106,16 @@ object C0803:
     case 1 => Some(12)
     case 0 => None
     case _ => None
+
+object C080401:
+  def add1(x: Int): Int = x + 1
+
+  def square(x: Int): Int = x * x
+
+  def add1ThenSquare(x: Int): Int = x pipe add1 pipe square
+
+  def isEven(x: Int): Boolean = (x % 2) == 0
+
+  def printBool(x: Boolean): String = s"value is $x"
+
+  def isEvenThenPrint(x: Int): String = x pipe isEven pipe printBool
