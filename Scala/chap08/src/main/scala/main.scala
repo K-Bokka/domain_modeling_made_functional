@@ -14,6 +14,12 @@
 
   println(s"If square function is the input, the output is $res2")
 
+  val add1: Int => Int = C080203.adderGeneratorEx(1)
+  println(s"add1(1) : ${add1(1)}")
+
+  val add100: Int => Int = C080203.adderGenerator(100)
+  println(s"add100(2) : ${add100(2)}")
+
 object C080201:
   val plus3: Int => Int = (x: Int) => x + 3
 
@@ -32,3 +38,17 @@ object C080202:
   def add1(x: Int): Int = x + 1
 
   def square(x: Int): Int = x * x
+
+object C080203:
+  def add1(x: Int): Int = x + 1
+
+  def add2(x: Int): Int = x + 2
+
+  def add3(x: Int): Int = x + 3
+
+  def adderGenerator(num: Int): Int => Int = (x: Int) => x + num
+
+  def adderGeneratorEx(num: Int): Int => Int =
+    def innerFn(x: Int) = x + num
+
+    innerFn
