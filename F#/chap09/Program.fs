@@ -1,4 +1,6 @@
-﻿printfn "Chapter 9"
+﻿open System.Text.RegularExpressions
+
+printfn "Chapter 9"
 
 open System
 
@@ -16,21 +18,32 @@ module Chap9 =
         |> createEvents
 
 module Common =
+    let createString50 name tp str =
+        if String.IsNullOrEmpty(str) then
+            $"%s{name} must not be null or empty" |> failwith
+        elif str.Length > 50 then
+            $"%s{name} must not be more than 50 chars" |> failwith
+        else
+            tp str
+
+    let createOptionString50 tp str =
+        if String.IsNullOrEmpty(str) then None
+        elif str.Length > 50 then None
+        else tp str |> Some
+
+    let createStringPattern name tp pattern str =
+        if String.IsNullOrEmpty(str) then
+            $"%s{name} must not be null or empty" |> failwith
+        elif Regex.IsMatch(str, pattern) then
+            tp str
+        else
+            $"%s{name}: %s{str} must match the pattern %s{pattern}" |> failwith
+
     type String50 = private String50 of string
 
     module String50 =
-        let create str =
-            if String.IsNullOrEmpty(str) then
-                failwith "String must not be null or empty"
-            elif str.Length > 50 then
-                failwith "String must not be more than 50 chars"
-            else
-                String50 str
-
-        let createOption str =
-            if String.IsNullOrEmpty(str) then None
-            elif str.Length > 50 then None
-            else String50 str |> Some
+        let create str = createString50 "String" String50 str
+        let createOption str = createOptionString50 String50 str
 
 module Domain =
     open Common
@@ -38,28 +51,71 @@ module Domain =
     type OrderId = private OrderId of string
 
     module OrderId =
-        let create str =
-            if String.IsNullOrEmpty(str) then
-                failwith "OrderId must not be null or empty"
-            elif str.Length > 50 then
-                failwith "OrderId must not be more than 50 chars"
-            else
-                OrderId str
-
-        let value (OrderId str) = str
+        let create str = createString50 "OrderId" OrderId str
 
     type ZipCode = private ZipCode of string
 
     module ZipCode =
+        let create str = createString50 "ZipCode" ZipCode str
+
+    type OrderLineId = private OrderLineId of string
+
+    module OrderLineId =
+        let create str =
+            createString50 "OrderLineId" OrderLineId str
+
+    type WidgetCode = private WidgetCode of string
+
+    module WidgetCode =
+        let pattern = "W\d{4}"
+
+        let create str =
+            createStringPattern "WidgetCode" WidgetCode "W\d{4}" str
+
+        let check (str: String) = Regex.IsMatch(str, pattern)
+
+    type GizmoCode = private GizmoCode of string
+
+    module GizmoCode =
+        let create str =
+            createStringPattern "GizmoCode" GizmoCode "G\d{3}" str
+
+    type ProductCode =
+        | Widget of WidgetCode
+        | Gizmo of GizmoCode
+
+    module ProductCode =
         let create str =
             if String.IsNullOrEmpty(str) then
-                failwith "ZipCode must not be null or empty"
-            elif str.Length > 50 then
-                failwith "ZipCode must not be more than 50 chars"
+                "ProductCode must not be null or empty" |> failwith
+            elif str.StartsWith("W") then
+                WidgetCode.create (str) |> ProductCode.Widget
+            elif str.StartsWith("G") then
+                GizmoCode.create (str) |> ProductCode.Gizmo
             else
-                ZipCode str
+                $"ProductCode format error: %s{str}" |> failwith
 
-        let value (OrderId str) = str
+    type UnitQuantity = UnitQuantity of int
+
+    module UnitQuantity =
+        let create i =
+            if i < 1 || 1000 < i then
+                $"UnitQuantity range is 1 ~ 1000, this value is %i{i}" |> failwith
+            else
+                UnitQuantity i
+
+    type KilogramQuantity = KilogramQuantity of decimal // TODO: 0.05以上100.00以下
+
+    module KilogramQuantity =
+        let create d =
+            if 0.05M < d || d < 100.00M then
+                $"KilogramQuantity range is 0.05 ~ 100.00, this value is %M{d}" |> failwith
+            else
+                KilogramQuantity d
+
+    type OrderQuantity =
+        | Unit of UnitQuantity
+        | Kilos of KilogramQuantity
 
     // For chap0903
     type Address =
@@ -97,8 +153,9 @@ module Domain =
           ZipCode: string }
 
     and UnvalidatedOrderLine =
-        { ProductCode: string
-          OrderQuantity: string }
+        { OrderLineId: string
+          ProductCode: string
+          Quantity: decimal }
 
     type ValidatedOrder =
         { OrderId: OrderId
@@ -115,7 +172,10 @@ module Domain =
         { FirstName: String50
           LastName: String50 }
 
-    and ValidatedOrderLine = private ValidatedOrderLine of string
+    and ValidatedOrderLine =
+        { OrderLineId: OrderLineId
+          ProductCode: ProductCode
+          Quantity: OrderQuantity }
 
 module C0902 =
     let validateOrder
@@ -155,7 +215,6 @@ module C0903 =
     type CheckedAddress = CheckedAddress of UnvalidatedAddress
     type CheckAddressExists = UnvalidatedAddress -> CheckedAddress
 
-    type ProductCode = ProductCode of string
     type CheckProductCodeExists = ProductCode -> bool
 
     type ValidateOrder =
@@ -197,15 +256,42 @@ module C0903 =
 
             address
 
-        let toOrderLines _ = failwith "hoge"
+        // TODO: bool を返してしまう...
+        // let toProductCode (checkProductCodeExists: CheckProductCodeExists) productCode =
+        //     productCode |> ProductCode.create |> checkProductCodeExists
+
+        let toProductCode (checkProductCodeExists: CheckProductCodeExists) productCode =
+            productCode |> ProductCode.create
+
+        let toOrderQuantity productCode quantity =
+            match productCode with
+            | Widget _ -> quantity |> int |> UnitQuantity.create |> OrderQuantity.Unit
+            | Gizmo _ -> quantity |> KilogramQuantity.create |> OrderQuantity.Kilos
+
+        let toOrderLine checkProductCodeExists (unvalidatedOrderLine: UnvalidatedOrderLine) =
+            let orderLineId = unvalidatedOrderLine.OrderLineId |> OrderLineId.create
+
+            let productCode =
+                unvalidatedOrderLine.ProductCode |> toProductCode checkProductCodeExists
+
+            let quantity = unvalidatedOrderLine.Quantity |> toOrderQuantity productCode
+
+            { OrderLineId = orderLineId
+              ProductCode = productCode
+              Quantity = quantity }
 
         fun checkProductCodeExists checkAddressExists unvalidatedOrder ->
 
             let orderId = unvalidatedOrder.OrderId |> OrderId.create
             let customerInfo = unvalidatedOrder.CustomerInfo |> toCustomerInfo
-            let shippingAddress = unvalidatedOrder.ShippingAddress |> toAddress checkAddressExists
+
+            let shippingAddress =
+                unvalidatedOrder.ShippingAddress |> toAddress checkAddressExists
+
             let billingAddress = unvalidatedOrder.BillingAddress |> toAddress checkAddressExists
-            let orderLines = unvalidatedOrder.OrderLines |> toOrderLines
+
+            let orderLines =
+                unvalidatedOrder.OrderLines |> List.map (toOrderLine checkProductCodeExists)
 
 
             { OrderId = orderId
