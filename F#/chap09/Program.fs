@@ -27,6 +27,11 @@ module Common =
             else
                 String50 str
 
+        let createOption str =
+            if String.IsNullOrEmpty(str) then None
+            elif str.Length > 50 then None
+            else String50 str |> Some
+
 module Domain =
     open Common
 
@@ -43,8 +48,28 @@ module Domain =
 
         let value (OrderId str) = str
 
+    type ZipCode = private ZipCode of string
+
+    module ZipCode =
+        let create str =
+            if String.IsNullOrEmpty(str) then
+                failwith "ZipCode must not be null or empty"
+            elif str.Length > 50 then
+                failwith "ZipCode must not be more than 50 chars"
+            else
+                ZipCode str
+
+        let value (OrderId str) = str
+
     // For chap0903
-    type Address = private Address of String
+    type Address =
+        { AddressLine1: String50
+          AddressLine2: String50 option
+          AddressLine3: String50 option
+          AddressLine4: String50 option
+          City: String50
+          ZipCode: ZipCode }
+
     type EmailAddress = private EmailAddress of String
 
     module EmailAddress =
@@ -63,7 +88,13 @@ module Domain =
           LastName: string
           EmailAddress: string }
 
-    and UnvalidatedAddress = UnvalidatedAddress of string
+    and UnvalidatedAddress =
+        { AddressLine1: string
+          AddressLine2: string
+          AddressLine3: string
+          AddressLine4: string
+          City: string
+          ZipCode: string }
 
     and UnvalidatedOrderLine =
         { ProductCode: string
@@ -72,8 +103,8 @@ module Domain =
     type ValidatedOrder =
         { OrderId: OrderId
           CustomerInfo: CustomerInfo
-          ShippingAddress: ShippingAddress
-          BillingAddress: BillingAddress
+          ShippingAddress: Address
+          BillingAddress: Address
           OrderLines: ValidatedOrderLine list }
 
     and CustomerInfo =
@@ -84,8 +115,6 @@ module Domain =
         { FirstName: String50
           LastName: String50 }
 
-    and ShippingAddress = private ShippingAddress of Address
-    and BillingAddress = private BillingAddress of Address
     and ValidatedOrderLine = private ValidatedOrderLine of string
 
 module C0902 =
@@ -123,8 +152,7 @@ module C0903 =
     open Domain
     open Common
 
-    type UnvalidatedAddress = Undefined
-    type CheckedAddress = Undefined
+    type CheckedAddress = CheckedAddress of UnvalidatedAddress
     type CheckAddressExists = UnvalidatedAddress -> CheckedAddress
 
     type ProductCode = ProductCode of string
@@ -147,15 +175,36 @@ module C0903 =
                   LastName = lastName }
               EmailAddress = emailAddress }
 
-        let toAddress _ = failwith "hoge"
+        let toAddress (checkAddressExists: CheckAddressExists) unvalidatedAddress =
+
+            let checkedAddress = checkAddressExists unvalidatedAddress
+            let (CheckedAddress checkedAddress) = checkedAddress
+
+            let addressLine1 = checkedAddress.AddressLine1 |> String50.create
+            let addressLine2 = checkedAddress.AddressLine2 |> String50.createOption
+            let addressLine3 = checkedAddress.AddressLine3 |> String50.createOption
+            let addressLine4 = checkedAddress.AddressLine4 |> String50.createOption
+            let city = checkedAddress.City |> String50.create
+            let zipCode = checkedAddress.ZipCode |> ZipCode.create
+
+            let address: Address =
+                { AddressLine1 = addressLine1
+                  AddressLine2 = addressLine2
+                  AddressLine3 = addressLine3
+                  AddressLine4 = addressLine4
+                  City = city
+                  ZipCode = zipCode }
+
+            address
+
         let toOrderLines _ = failwith "hoge"
 
         fun checkProductCodeExists checkAddressExists unvalidatedOrder ->
 
             let orderId = unvalidatedOrder.OrderId |> OrderId.create
             let customerInfo = unvalidatedOrder.CustomerInfo |> toCustomerInfo
-            let shippingAddress = unvalidatedOrder.ShippingAddress |> toAddress
-            let billingAddress = unvalidatedOrder.BillingAddress |> toAddress
+            let shippingAddress = unvalidatedOrder.ShippingAddress |> toAddress checkAddressExists
+            let billingAddress = unvalidatedOrder.BillingAddress |> toAddress checkAddressExists
             let orderLines = unvalidatedOrder.OrderLines |> toOrderLines
 
 
