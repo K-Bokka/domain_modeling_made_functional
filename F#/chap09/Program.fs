@@ -45,6 +45,8 @@ module Common =
         let create str = createString50 "String" String50 str
         let createOption str = createOptionString50 String50 str
 
+    let predicateToPassthru errorMsg f x = if f x then x else failwith errorMsg
+
 module Domain =
     open Common
 
@@ -259,6 +261,20 @@ module C0903 =
         // TODO: bool を返してしまう...
         // let toProductCode (checkProductCodeExists: CheckProductCodeExists) productCode =
         //     productCode |> ProductCode.create |> checkProductCodeExists
+
+        // 関数変換器（一般化したものは Common に記載
+        let convertToPassthru checkProductCodeExists productCode =
+            if checkProductCodeExists productCode then
+                productCode
+            else
+                failwith "Invalid ProductCode"
+
+        let toProductCode (checkProductCodeExists: CheckProductCodeExists) productCode =
+            let checkProduct productCode =
+                let errorMsg = $"Invalid: %A{productCode}"
+                predicateToPassthru errorMsg checkProductCodeExists productCode
+
+            productCode |> ProductCode.create |> checkProduct
 
         let toProductCode (checkProductCodeExists: CheckProductCodeExists) productCode =
             productCode |> ProductCode.create
