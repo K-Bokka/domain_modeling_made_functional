@@ -106,6 +106,8 @@ module Domain =
             else
                 UnitQuantity i
 
+        let value (UnitQuantity v) = v
+
     type KilogramQuantity = KilogramQuantity of decimal // TODO: 0.05以上100.00以下
 
     module KilogramQuantity =
@@ -115,9 +117,17 @@ module Domain =
             else
                 KilogramQuantity d
 
+        let value (KilogramQuantity v) = v
+
     type OrderQuantity =
         | Unit of UnitQuantity
         | Kilos of KilogramQuantity
+
+    module OrderQuantity =
+        let value qty =
+            match qty with
+            | Unit u -> u |> UnitQuantity.value |> decimal
+            | Kilos k -> k |> KilogramQuantity.value
 
     // For chap0903
     type Address =
@@ -178,6 +188,42 @@ module Domain =
         { OrderLineId: OrderLineId
           ProductCode: ProductCode
           Quantity: OrderQuantity }
+
+    // For chap0904
+    type Price = private Price of decimal
+
+    module Price =
+        let create v = Price v
+        let value (Price v) = v
+        let multiply qty (Price p) = create (p * qty)
+
+    type PricedOrder =
+        { OrderId: OrderId
+          CustomerInfo: CustomerInfo
+          ShippingAddress: Address
+          BillingAddress: Address
+          Lines: PricedOrderLine list
+          AmountToBill: BillingAmount }
+
+    and PricedOrderLine =
+        { OrderLineId: OrderLineId
+          ProductCode: ProductCode
+          Quantity: OrderQuantity
+          LinePrice: Price }
+
+    and BillingAmount = private BillingAmount of decimal
+
+    module BillingAmount =
+        let create d =
+            if 0.00M < d || d < 1_000_000.00M then
+                $"BillingAmount range is 0.00 ~ 1_000_000.00, this value is %M{d}" |> failwith
+            else
+                BillingAmount d
+
+        let sumPrices prices =
+            let total = prices |> List.map Price.value |> List.sum
+            create total
+
 
 module C0902 =
     let validateOrder
@@ -315,3 +361,40 @@ module C0903 =
               ShippingAddress = shippingAddress
               BillingAddress = billingAddress
               OrderLines = orderLines }
+
+module C0904 =
+    open Domain
+    open Common
+
+    type GetProductPrice = ProductCode -> Price
+
+    type PriceOrder =
+        GetProductPrice // 依存
+            -> ValidatedOrder // In
+            -> PricedOrder // Out
+
+    let toPricedOrderLine getProductPrice (line: ValidatedOrderLine) : PricedOrderLine =
+        let qty = line.Quantity |> OrderQuantity.value
+        let price = line.ProductCode |> getProductPrice
+        let linePrice = price |> Price.multiply qty
+
+        { OrderLineId = line.OrderLineId
+          ProductCode = line.ProductCode
+          Quantity = line.Quantity
+          LinePrice = linePrice }
+
+
+    let priceOrder: PriceOrder =
+        fun getProductPrice validatedOrder ->
+            let lines =
+                validatedOrder.OrderLines |> List.map (toPricedOrderLine getProductPrice)
+
+            let amountToBill =
+                lines |> List.map (fun line -> line.LinePrice) |> BillingAmount.sumPrices
+
+            { OrderId = validatedOrder.OrderId
+              CustomerInfo = validatedOrder.CustomerInfo
+              ShippingAddress = validatedOrder.ShippingAddress
+              BillingAddress = validatedOrder.BillingAddress
+              Lines = lines
+              AmountToBill = amountToBill }
