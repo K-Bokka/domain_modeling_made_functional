@@ -224,6 +224,19 @@ module Domain =
             let total = prices |> List.map Price.value |> List.sum
             create total
 
+    type HtmlString = HtmlString of string
+
+    type OrderAcknowledgment =
+        { EmailAddress: EmailAddress
+          Letter: HtmlString }
+
+    type SendResult =
+        | Sent
+        | NotSent
+
+    type OrderAcknowledgmentSent =
+        { OrderId: OrderId
+          EmailAddress: EmailAddress }
 
 module C0902 =
     let validateOrder
@@ -398,3 +411,30 @@ module C0904 =
               BillingAddress = validatedOrder.BillingAddress
               Lines = lines
               AmountToBill = amountToBill }
+
+    type CreateOrderAcknowledgmentLetter = PricedOrder -> HtmlString
+
+    type SendOrderAcknowledgment = OrderAcknowledgment -> SendResult
+
+    type AcknowledgeOrder =
+        CreateOrderAcknowledgmentLetter // 依存
+            -> SendOrderAcknowledgment // 依存
+            -> PricedOrder // In
+            -> OrderAcknowledgmentSent option // Out
+
+    let AcknowledgeOrder: AcknowledgeOrder =
+        fun createOrderAcknowledgmentLetter sendAcknowledgment pricedOrder ->
+            let letter = createOrderAcknowledgmentLetter pricedOrder
+
+            let acknowledgment =
+                { EmailAddress = pricedOrder.CustomerInfo.EmailAddress
+                  Letter = letter }
+
+            match sendAcknowledgment acknowledgment with
+            | Sent ->
+                let event =
+                    { OrderId = pricedOrder.OrderId
+                      EmailAddress = pricedOrder.CustomerInfo.EmailAddress }
+
+                Some event
+            | NotSent -> None
