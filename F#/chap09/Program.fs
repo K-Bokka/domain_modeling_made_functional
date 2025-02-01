@@ -46,6 +46,11 @@ module Common =
         let createOption str = createOptionString50 String50 str
 
     let predicateToPassthru errorMsg f x = if f x then x else failwith errorMsg
+    
+    let listOfOption opt =
+        match opt with
+        | Some x -> [x]
+        | None -> []
 
 module Domain =
     open Common
@@ -224,6 +229,8 @@ module Domain =
             let total = prices |> List.map Price.value |> List.sum
             create total
 
+        let value (BillingAmount v) = v
+
     type HtmlString = HtmlString of string
 
     type OrderAcknowledgment =
@@ -237,6 +244,18 @@ module Domain =
     type OrderAcknowledgmentSent =
         { OrderId: OrderId
           EmailAddress: EmailAddress }
+
+    type OrderPlaced = PricedOrder
+
+    type BillableOrderPlaced =
+        { OrderId: OrderId
+          BillingAddress: Address
+          AmountToBill: BillingAmount }
+
+    type PlaceOrderEvent =
+        | OrderPlaced of OrderPlaced
+        | BillableOrderPlaced of BillableOrderPlaced
+        | AcknowledgmentSent of OrderAcknowledgmentSent
 
 module C0902 =
     let validateOrder
@@ -438,3 +457,37 @@ module C0904 =
 
                 Some event
             | NotSent -> None
+
+    type CreateEvents =
+        PricedOrder // In
+            -> OrderAcknowledgmentSent option // In
+            -> PlaceOrderEvent list // Out
+
+    let createBillingEvent (placedOrder: PricedOrder) : BillableOrderPlaced option =
+        let billingAmount = placedOrder.AmountToBill |> BillingAmount.value
+
+        if billingAmount > 0M then
+            let order =
+                { OrderId = placedOrder.OrderId
+                  BillingAddress = placedOrder.BillingAddress
+                  AmountToBill = placedOrder.AmountToBill }
+
+            Some order
+        else
+            None
+
+    let createEvents : CreateEvents =
+        fun pricedOrder acknowledgmentEventOpt ->
+            let event1 =
+                pricedOrder |> PlaceOrderEvent.OrderPlaced |> List.singleton
+            let event2Opt =
+                acknowledgmentEventOpt |> Option.map PlaceOrderEvent.AcknowledgmentSent |> listOfOption
+            let event3Opt =
+                pricedOrder |> createBillingEvent |> Option.map PlaceOrderEvent.BillableOrderPlaced |> listOfOption
+                
+            [
+                yield! event1
+                yield! event2Opt
+                yield! event3Opt
+            ]
+                
