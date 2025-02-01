@@ -46,10 +46,10 @@ module Common =
         let createOption str = createOptionString50 String50 str
 
     let predicateToPassthru errorMsg f x = if f x then x else failwith errorMsg
-    
+
     let listOfOption opt =
         match opt with
-        | Some x -> [x]
+        | Some x -> [ x ]
         | None -> []
 
 module Domain =
@@ -441,7 +441,7 @@ module C0904 =
             -> PricedOrder // In
             -> OrderAcknowledgmentSent option // Out
 
-    let AcknowledgeOrder: AcknowledgeOrder =
+    let acknowledgeOrder: AcknowledgeOrder =
         fun createOrderAcknowledgmentLetter sendAcknowledgment pricedOrder ->
             let letter = createOrderAcknowledgmentLetter pricedOrder
 
@@ -476,18 +476,64 @@ module C0904 =
         else
             None
 
-    let createEvents : CreateEvents =
+    let createEvents: CreateEvents =
         fun pricedOrder acknowledgmentEventOpt ->
-            let event1 =
-                pricedOrder |> PlaceOrderEvent.OrderPlaced |> List.singleton
+            let event1 = pricedOrder |> PlaceOrderEvent.OrderPlaced |> List.singleton
+
             let event2Opt =
-                acknowledgmentEventOpt |> Option.map PlaceOrderEvent.AcknowledgmentSent |> listOfOption
+                acknowledgmentEventOpt
+                |> Option.map PlaceOrderEvent.AcknowledgmentSent
+                |> listOfOption
+
             let event3Opt =
-                pricedOrder |> createBillingEvent |> Option.map PlaceOrderEvent.BillableOrderPlaced |> listOfOption
-                
-            [
-                yield! event1
-                yield! event2Opt
-                yield! event3Opt
-            ]
-                
+                pricedOrder
+                |> createBillingEvent
+                |> Option.map PlaceOrderEvent.BillableOrderPlaced
+                |> listOfOption
+
+            [ yield! event1; yield! event2Opt; yield! event3Opt ]
+
+module C0905 =
+    open Domain
+    open C0903
+    open C0904
+
+    let checkProductCodeExists _ = failwith "Not implemented"
+    let checkAddressExists _ = failwith "Not implemented"
+    let getProductPrice _ = failwith "Not implemented"
+    let createAcknowledgmentLetter _ = failwith "Not implemented"
+    let sendAcknowledgment _ = failwith "Not implemented"
+
+    type PlaceOrderWorkFlow = UnvalidatedOrder -> PlaceOrderEvent list
+
+    module pattern1 =
+
+        let placeOrder: PlaceOrderWorkFlow =
+            let validateOrder = validateOrder checkProductCodeExists checkAddressExists
+            let priceOrder = priceOrder getProductPrice
+
+            let acknowledgeOrder =
+                acknowledgeOrder createAcknowledgmentLetter sendAcknowledgment
+
+            fun unvalidatedOrder ->
+                unvalidatedOrder
+                |> validateOrder
+                |> priceOrder
+                |> fun pricedOrder ->
+                    let acknowledgmentOption = acknowledgeOrder pricedOrder
+                    createEvents pricedOrder acknowledgmentOption
+
+
+    let placeOrder: PlaceOrderWorkFlow =
+        fun unvalidatedOrder ->
+            let validatedOrder =
+                unvalidatedOrder |> validateOrder checkProductCodeExists checkAddressExists
+
+            let pricedOrder = validatedOrder |> priceOrder getProductPrice
+
+            let acknowledgmentOption =
+                pricedOrder |> acknowledgeOrder createAcknowledgmentLetter sendAcknowledgment
+
+            let events = createEvents pricedOrder acknowledgmentOption
+
+            events
