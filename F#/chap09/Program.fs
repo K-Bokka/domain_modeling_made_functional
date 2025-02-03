@@ -1,4 +1,5 @@
 ﻿open System.Text.RegularExpressions
+open NUnit.Framework
 
 printfn "Chapter 9"
 
@@ -601,3 +602,31 @@ module C090601 =
         let validateOrder = checkProductCodeExists checkAddressExists
 
         fun unvalidatedOrder -> failwith "Not Impl"
+
+module C0907 =
+    open NUnit.Framework
+    open C0903
+    
+    [<Test>]
+    let ``製品が存在する場合は、検証に成功する``() =
+        let checkAddressExists address = CheckedAddress address
+        
+        let checkProductCodeExists productCode = true
+        
+        let unvalidatedOrder = failwith "Not impl"
+
+        let result = validateOrder checkProductCodeExists checkAddressExists unvalidatedOrder
+        
+        failwith "Not impl"
+    
+    [<Test>]
+    let ``製品が存在しない場合は、検証に失敗する``() =
+        let checkAddressExists address = CheckedAddress address
+        
+        let checkProductCodeExists productCode = false
+        
+        let unvalidatedOrder = failwith "Not impl"
+
+        let result = validateOrder checkProductCodeExists checkAddressExists unvalidatedOrder
+        
+        failwith "Not impl"
