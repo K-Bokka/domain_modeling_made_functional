@@ -1,4 +1,5 @@
 ﻿open System.Text.RegularExpressions
+open NUnit.Framework
 
 printfn "Chapter 9"
 
@@ -567,7 +568,6 @@ module C0906 =
     type AnyType = Undefined
     type PlaceOrderWorkflow = AnyType -> AnyType list
 
-
     let placeOrder
         checkProductExists
         checkAddressExists
@@ -576,3 +576,135 @@ module C0906 =
         sendOrderAcknowledgment
         : PlaceOrderWorkflow =
         fun unvalidatedOrder -> failwith "Not Impl"
+
+module C090601 =
+    let checkAddressExists endPoint credentials = failwith "Not impl"
+
+    let toAddress checkAddressExists endPoint credentials unvalidatedAddress =
+        let checkedAddress = checkAddressExists endPoint credentials unvalidatedAddress
+
+        failwith "Not impl"
+
+    let validateOrder checkProductExists checkAddressExists endPoint credentials unvalidatedAddress =
+        failwith "Not Impl"
+
+    type AnyType = Undefined
+    type PlaceOrderWorkflow = AnyType -> AnyType list
+
+    let placeOrder: PlaceOrderWorkflow =
+        let endPoint = failwith "Not Impl"
+        let credential = failwith "Not Impl"
+
+        let checkAddressExists = checkAddressExists endPoint credential
+
+        let checkProductCodeExists = failwith "Not impl"
+
+        let validateOrder = checkProductCodeExists checkAddressExists
+
+        fun unvalidatedOrder -> failwith "Not Impl"
+
+module C0907 =
+    open NUnit.Framework
+    open C0903
+
+    [<Test>]
+    let ``製品が存在する場合は、検証に成功する`` () =
+        let checkAddressExists address = CheckedAddress address
+
+        let checkProductCodeExists productCode = true
+
+        let unvalidatedOrder = failwith "Not impl"
+
+        let result =
+            validateOrder checkProductCodeExists checkAddressExists unvalidatedOrder
+
+        failwith "Not impl"
+
+    [<Test>]
+    let ``製品が存在しない場合は、検証に失敗する`` () =
+        let checkAddressExists address = CheckedAddress address
+
+        let checkProductCodeExists productCode = false
+
+        let unvalidatedOrder = failwith "Not impl"
+
+        let result =
+            validateOrder checkProductCodeExists checkAddressExists unvalidatedOrder
+
+        failwith "Not impl"
+
+module C0908 =
+    open Common
+    open Domain
+
+    // 設計
+
+    type CheckProductCodeExists = ProductCode -> bool
+
+    type CheckedAddress = CheckedAddress of UnvalidatedAddress
+
+    type checkAddressExists = UnvalidatedAddress -> CheckedAddress
+
+    type ValidateOrder =
+        CheckProductCodeExists // 依存
+            -> checkAddressExists // 依存
+            -> UnvalidatedOrder // In
+            -> ValidatedOrder // Out
+
+    // 実装
+
+    let toCustomerInfo (unvalidatedCustomerInfo: UnvalidatedCustomerInfo) = failwith "Not impl"
+    let toAddress (checkAddressExists: checkAddressExists) unvalidatedAddress = failwith "Not impl"
+    let predicateToPassthru _ = failwith "Not impl"
+    let toProductCode (checkProductCodeExists: CheckProductCodeExists) productCode = failwith "Not impl"
+    let toOrderQuantity productCode quantity = failwith "Not impl"
+    let toValidatedOrderLine checkProductCodeExists (unvalidatedOrderLine: UnvalidatedOrderLine) = failwith "Not impl"
+
+    let validateOrder: ValidateOrder =
+        fun checkProductCodeExists checkAddressExists unvalidatedOrder ->
+            let orderId = unvalidatedOrder.OrderId |> OrderId.create
+            let customerInfo = failwith "Not impl"
+            let shippingAddress = failwith "Not impl"
+            let billingAddress = failwith "Not impl"
+
+            let lines =
+                unvalidatedOrder.OrderLines
+                |> List.map (toValidatedOrderLine checkProductCodeExists)
+
+            let validatedOrder: ValidatedOrder =
+                { OrderId = orderId
+                  CustomerInfo = customerInfo
+                  ShippingAddress = shippingAddress
+                  BillingAddress = billingAddress
+                  OrderLines = lines }
+
+            validatedOrder
+
+    // ワークフローの全体像
+    type PlaceOrderWorkFlow = UnvalidatedOrder -> PlaceOrderEvent list
+
+
+    let priceOrder _ = failwith "Not impl"
+    let acknowledgeOrder _ = failwith "Not impl"
+    let createEvents _ = failwith "Not impl"
+
+    let placeOrder
+        checkProductExists
+        checkAddressExists
+        getProductPrice
+        createOrderAcknowledgmentLetter
+        sendOrderAcknowledgment
+        : PlaceOrderWorkFlow =
+        fun unvalidatedOrder ->
+            let validatedOrder =
+                unvalidatedOrder |> validateOrder checkProductExists checkAddressExists
+
+            let pricedOrder = validatedOrder |> priceOrder getProductPrice
+
+            let acknowledgmentOption =
+                pricedOrder
+                |> acknowledgeOrder createOrderAcknowledgmentLetter sendOrderAcknowledgment
+
+            let events = createEvents pricedOrder acknowledgmentOption
+
+            events
