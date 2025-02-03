@@ -567,7 +567,6 @@ module C0906 =
     type AnyType = Undefined
     type PlaceOrderWorkflow = AnyType -> AnyType list
 
-
     let placeOrder
         checkProductExists
         checkAddressExists
@@ -575,4 +574,30 @@ module C0906 =
         createOrderAcknowledgmentLetter
         sendOrderAcknowledgment
         : PlaceOrderWorkflow =
+        fun unvalidatedOrder -> failwith "Not Impl"
+
+module C090601 =
+    let checkAddressExists endPoint credentials = failwith "Not impl"
+
+    let toAddress checkAddressExists endPoint credentials unvalidatedAddress =
+        let checkedAddress = checkAddressExists endPoint credentials unvalidatedAddress
+
+        failwith "Not impl"
+
+    let validateOrder checkProductExists checkAddressExists endPoint credentials unvalidatedAddress =
+        failwith "Not Impl"
+
+    type AnyType = Undefined
+    type PlaceOrderWorkflow = AnyType -> AnyType list
+
+    let placeOrder: PlaceOrderWorkflow =
+        let endPoint = failwith "Not Impl"
+        let credential = failwith "Not Impl"
+
+        let checkAddressExists = checkAddressExists endPoint credential
+
+        let checkProductCodeExists = failwith "Not impl"
+
+        let validateOrder = checkProductCodeExists checkAddressExists
+
         fun unvalidatedOrder -> failwith "Not Impl"
