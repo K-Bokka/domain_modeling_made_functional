@@ -537,3 +537,42 @@ module C0905 =
             let events = createEvents pricedOrder acknowledgmentOption
 
             events
+
+module C0906 =
+    open Domain
+    open C0903
+
+    let toAddress checkAddressExists unvalidatedAddress = failwith "Not impl"
+    let toProductCode checkProductExists productCode = failwith "Not impl"
+
+    let toValidatedOrderLine checkProductExists (unvalidatedOrderLine: UnvalidatedOrderLine) =
+        let orderLineId = failwith "Not impl"
+
+        let productCode =
+            unvalidatedOrderLine.ProductCode |> toProductCode checkProductExists
+
+        failwith "Not Impl"
+
+    let validateOrder: ValidateOrder =
+        fun checkProductExists checkAddressExists unvalidatedOrder ->
+            let shippingAddress =
+                unvalidatedOrder.ShippingAddress |> toAddress checkAddressExists
+
+            let lines =
+                unvalidatedOrder.OrderLines
+                |> List.map (toValidatedOrderLine checkProductExists)
+
+            failwith "Not Impl"
+
+    type AnyType = Undefined
+    type PlaceOrderWorkflow = AnyType -> AnyType list
+
+
+    let placeOrder
+        checkProductExists
+        checkAddressExists
+        getProductPrice
+        createOrderAcknowledgmentLetter
+        sendOrderAcknowledgment
+        : PlaceOrderWorkflow =
+        fun unvalidatedOrder -> failwith "Not Impl"
