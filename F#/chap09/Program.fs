@@ -258,8 +258,6 @@ module Domain =
         | BillableOrderPlaced of BillableOrderPlaced
         | AcknowledgmentSent of OrderAcknowledgmentSent
 
-open Domain
-
 module C0902 =
     let validateOrder
         checkProductCodeExists // 依存
