@@ -12,8 +12,8 @@ object Helpers:
     val name = PersonalName(firstName, lastName)
     CustomerInfo(name, emailAddress)
 
-  def toAddress(UnvalidatedAddress: UnvalidatedAddress)(using checkAddressExists: CheckAddressExists): Address =
-    val checkedAddress: CheckedAddress = checkAddressExists(UnvalidatedAddress)
+  def toAddress(checkAddressExists: CheckAddressExists, unvalidatedAddress: UnvalidatedAddress): Address =
+    val checkedAddress: CheckedAddress = checkAddressExists(unvalidatedAddress)
     val addressLine1 = checkedAddress.addressLine1 |> String50.apply
     val addressLine2 = checkedAddress.addressLine2 |> String50.applyOpt
     val addressLine3 = checkedAddress.addressLine3 |> String50.applyOpt
