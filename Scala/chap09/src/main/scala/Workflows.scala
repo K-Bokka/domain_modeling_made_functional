@@ -19,7 +19,9 @@ object Workflows:
       |> acknowledgeOrder
       |> createEvents
 
-  private type CheckAddressExists = UnvalidatedAddress => CheckedAddress
+  type CheckAddressExists = UnvalidatedAddress => CheckedAddress
+
+  given checkAddressExists: CheckAddressExists = ???
 
   private type CheckProductCodeExists = ProductCode => Boolean
 
