@@ -13,7 +13,7 @@ object Helpers:
     CustomerInfo(name, emailAddress)
 
   def toAddress(checkAddressExists: CheckAddressExists, unvalidatedAddress: UnvalidatedAddress): Address =
-    val checkedAddress: CheckedAddress = checkAddressExists(unvalidatedAddress)
+    val checkedAddress: CheckedAddress = unvalidatedAddress |> checkAddressExists
     val addressLine1 = checkedAddress.addressLine1 |> String50.apply
     val addressLine2 = checkedAddress.addressLine2 |> String50.applyOpt
     val addressLine3 = checkedAddress.addressLine3 |> String50.applyOpt
@@ -22,6 +22,22 @@ object Helpers:
     val zipCode = checkedAddress.zipCode |> ZipCode.apply
     Address(addressLine1, addressLine2, addressLine3, addressLine4, city, zipCode)
 
-  def toOrderLine(unvalidatedOrderLine: UnvalidatedOrderLine): OrderLine = ???
+  def toProductCode(checkProductCodeExists: CheckProductCodeExists, productCode: String): ProductCode = ???
+  
+  def toOrderQuantity(productCode: ProductCode, quantity: BigDecimal): OrderQuantity =
+    productCode match
+      case ProductCode.Widget(_) => quantity.toInt |> UnitQuantity.apply |> OrderQuantity.Unit.apply
+      case ProductCode.Gizmo(_) => quantity |> KilogramQuantity.apply |> OrderQuantity.Kilos.apply
+
+  def toOrderLine(
+                   checkProductCodeExists: CheckProductCodeExists,
+                   unvalidatedOrderLine: UnvalidatedOrderLine,
+                 ): OrderLine =
+    val toProductCodeCurried = toProductCode(checkProductCodeExists, _: String)
+    val orderLineId = unvalidatedOrderLine.orderLineId |> OrderLineId.apply
+    val productCode = unvalidatedOrderLine.productCode |> toProductCodeCurried
+    val toOrderQuantityCurried = toOrderQuantity(productCode, _: BigDecimal)
+    val quantity = unvalidatedOrderLine.quantity |> toOrderQuantityCurried
+    OrderLine(orderLineId, productCode, quantity)
 
 end Helpers
