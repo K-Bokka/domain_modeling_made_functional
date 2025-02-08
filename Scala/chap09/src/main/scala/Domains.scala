@@ -41,7 +41,18 @@ object Domains:
       else if value.length > 50 then throw new Exception("OrderId must not be more than 50 characters")
       else new OrderId(value)
 
-  case class CheckedAddress(value: String)
+  type CheckedAddress = UnvalidatedAddress
+
+  case class ZipCode(value: String)
+
+  case class Address(
+                      addressLine1: String50,
+                      addressLine2: Option[String50],
+                      addressLine3: Option[String50],
+                      addressLine4: Option[String50],
+                      city: String50,
+                      zipCode: ZipCode,
+                    )
 
   case class ProductCode(value: String)
 
@@ -59,8 +70,8 @@ object Domains:
   case class ValidatedOrder(
                              orderId: OrderId,
                              customerInfo: CustomerInfo,
-                             shippingAddress: CheckedAddress,
-                             billingAddress: CheckedAddress,
+                             shippingAddress: Address,
+                             billingAddress: Address,
                              lines: List[OrderLine],
                            )
 

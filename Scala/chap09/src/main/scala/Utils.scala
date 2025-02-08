@@ -14,4 +14,9 @@ object Utils:
       if value.isEmpty then throw new IllegalArgumentException("String cannot be empty")
       else if value.length > 50 then throw new IllegalArgumentException("String cannot be longer than 50 characters")
       else new String50(value)
+
+    def applyOpt(value: String): Option[String50] =
+      if value.isEmpty then None
+      else if value.length > 50 then None
+      else Some(new String50(value))
 end Utils
