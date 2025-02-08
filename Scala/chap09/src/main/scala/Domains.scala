@@ -1,4 +1,5 @@
 import Utils.*
+import Utils.Pipe.|>
 
 object Domains:
   // 未検証
@@ -54,7 +55,21 @@ object Domains:
                       zipCode: ZipCode,
                     )
 
-  case class ProductCode(value: String)
+  case class WidgetCode(value: String)
+
+  case class GizmoCode(value: String)
+
+  enum ProductCode:
+    case Widget(code: WidgetCode)
+    case Gizmo(code: GizmoCode)
+
+  object ProductCode:
+    def apply(str: String): ProductCode =
+      if str.isEmpty then throw new Exception("ProductCode must not be empty")
+      else if str.length > 50 then throw new Exception("ProductCode must not be more than 50 characters")
+      else if str.startsWith("W") then str |> WidgetCode.apply |> ProductCode.Widget.apply
+      else if str.startsWith("G") then str |> GizmoCode.apply |> ProductCode.Gizmo.apply
+      else throw new Exception("ProductCode must start with W or G")
 
   case class EmailAddress(value: String)
 
@@ -65,7 +80,33 @@ object Domains:
                            emailAddress: EmailAddress,
                          )
 
-  case class OrderLine(orderLineId: String50)
+  case class OrderLineId private(value: String)
+
+  object OrderLineId:
+    def apply(value: String): OrderLineId =
+      if value.isEmpty
+      then throw new Exception("OrderLineId must not be empty")
+      else if value.length > 50 then throw new Exception("OrderLineId must not be more than 50 characters")
+      else new OrderLineId(value)
+
+  case class UnitQuantity(value: Int)
+
+  case class KilogramQuantity(value: BigDecimal)
+
+  enum OrderQuantity:
+    case Unit(value: UnitQuantity)
+    case Kilos(value: KilogramQuantity)
+
+  object OrderQuantity:
+    def value(qty: OrderQuantity): BigDecimal = qty match
+      case Unit(u) => u.value |> BigDecimal.apply
+      case Kilos(k) => k.value
+
+  case class OrderLine(
+                        orderLineId: OrderLineId,
+                        productId: ProductCode,
+                        quantity: OrderQuantity,
+                      )
 
   case class ValidatedOrder(
                              orderId: OrderId,

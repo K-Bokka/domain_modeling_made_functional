@@ -21,9 +21,11 @@ object Workflows:
 
   type CheckAddressExists = UnvalidatedAddress => CheckedAddress
 
-  given checkAddressExists: CheckAddressExists = ???
+  private val checkAddressExists: CheckAddressExists = ???
 
-  private type CheckProductCodeExists = ProductCode => Boolean
+  type CheckProductCodeExists = ProductCode => Boolean
+  
+  private val checkProductCodeExists: CheckProductCodeExists = ???
 
   private type ValidateOrder =
     CheckProductCodeExists
@@ -33,13 +35,15 @@ object Workflows:
 
   val validateOrder: ValidateOrder =
     checkProductCodeExists => checkAddressExists => unvalidatedOrder =>
+      val toAddressCurried = toAddress(checkAddressExists, _)
+      val toOrderLineCurried = toOrderLine(checkProductCodeExists, _)
       val orderId = unvalidatedOrder.orderId |> OrderId.apply
       val customerInfo = unvalidatedOrder.customerInfo |> toCustomerInfo
-      val shippingAddress = unvalidatedOrder.shippingAddress |> toAddress
-      val billingAddress = unvalidatedOrder.billingAddress |> toAddress
+      val shippingAddress = unvalidatedOrder.shippingAddress |> toAddressCurried
+      val billingAddress = unvalidatedOrder.billingAddress |> toAddressCurried
       val orderLines = for {
         line <- unvalidatedOrder.lines
-      } yield line |> toOrderLine
+      } yield line |> toOrderLineCurried
       
       ValidatedOrder(
         orderId = orderId,
