@@ -22,8 +22,14 @@ object Helpers:
     val zipCode = checkedAddress.zipCode |> ZipCode.apply
     Address(addressLine1, addressLine2, addressLine3, addressLine4, city, zipCode)
 
-  def toProductCode(checkProductCodeExists: CheckProductCodeExists, productCode: String): ProductCode = ???
-  
+  def convertToPassthru(checkProductCodeExists: CheckProductCodeExists, productCode: ProductCode): ProductCode =
+    if checkProductCodeExists(productCode) then productCode
+    else throw new Exception(s"Invalid product code: ${productCode}")
+
+  def toProductCode(checkProductCodeExists: CheckProductCodeExists, productCode: String): ProductCode =
+    val checkProduct = productCode => convertToPassthru(checkProductCodeExists, productCode)
+    productCode |> ProductCode.apply |> checkProduct
+
   def toOrderQuantity(productCode: ProductCode, quantity: BigDecimal): OrderQuantity =
     productCode match
       case ProductCode.Widget(_) => quantity.toInt |> UnitQuantity.apply |> OrderQuantity.Unit.apply
