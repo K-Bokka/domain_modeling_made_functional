@@ -24,7 +24,7 @@ object Workflows:
   private val checkAddressExists: CheckAddressExists = ???
 
   type CheckProductCodeExists = ProductCode => Boolean
-  
+
   private val checkProductCodeExists: CheckProductCodeExists = ???
 
   private type ValidateOrder =
@@ -44,7 +44,7 @@ object Workflows:
       val orderLines = for {
         line <- unvalidatedOrder.lines
       } yield line |> toOrderLineCurried
-      
+
       ValidatedOrder(
         orderId = orderId,
         customerInfo = customerInfo,
@@ -52,5 +52,30 @@ object Workflows:
         billingAddress = billingAddress,
         lines = orderLines
       )
+
+  type GetProductPrice = ProductCode => Price
+
+  type PriceOrder =
+    GetProductPrice // 依存
+      => ValidatedOrder // In
+      => PricedOrder // Out
+
+  val priceOrder: PriceOrder = getProductPrice => validatedOrder =>
+    val lines = for {
+      line <- validatedOrder.lines
+    } yield {
+      val toPricedOrderLineCurried = toPricedOrderLine(getProductPrice, _)
+      line |> toPricedOrderLineCurried
+    }
+    val amountToBill = lines.map(_.price) |> BillingAmount.sumPrices
+
+    PricedOrder(
+      validatedOrder.orderId,
+      validatedOrder.customerInfo,
+      validatedOrder.shippingAddress,
+      validatedOrder.billingAddress,
+      lines,
+      amountToBill
+    )
 
 end Workflows

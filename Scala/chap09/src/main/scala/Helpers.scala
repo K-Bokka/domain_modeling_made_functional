@@ -46,4 +46,19 @@ object Helpers:
     val quantity = unvalidatedOrderLine.quantity |> toOrderQuantityCurried
     OrderLine(orderLineId, productCode, quantity)
 
+  def toPricedOrderLine(
+                         getProductPrice: GetProductPrice,
+                         validatedOrderLine: OrderLine,
+                       ): PricedOrderLine =
+    val qty = validatedOrderLine.quantity |> OrderQuantity.value
+    val price = validatedOrderLine.productId |> getProductPrice
+    val priceMultiplyCurried = Price.multiply(qty, _: Price)
+    val linePrice = price |> priceMultiplyCurried
+    PricedOrderLine(
+      validatedOrderLine.orderLineId,
+      validatedOrderLine.productId,
+      validatedOrderLine.quantity,
+      price,
+    )
+
 end Helpers
