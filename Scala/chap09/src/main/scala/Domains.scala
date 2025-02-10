@@ -116,4 +116,44 @@ object Domains:
                              lines: List[OrderLine],
                            )
 
+  // 価格付き
+  case class Price private(value: BigDecimal)
+
+  object Price:
+    def apply(value: BigDecimal): Price =
+      if 0D < value || value < 1_000_000D then throw new Exception("Price must be between 1,000 and 1,000,000")
+      else new Price(value)
+    def multiply(quantity: BigDecimal, price: Price) =
+      quantity * price.value |> Price.apply
+
+
+
+  case class PricedOrderLine(
+                              orderLineId: OrderLineId,
+                              productId: ProductCode,
+                              quantity: OrderQuantity,
+                              price: Price,
+                            )
+
+  case class BillingAmount private(value: BigDecimal)
+
+  object BillingAmount:
+    def apply(value: BigDecimal): BillingAmount =
+      if 0D < value || value < 1_000_000D then throw new Exception("BillingAmount must be between 1,000 and 1,000,000")
+      else new BillingAmount(value)
+
+    def sumPrices(lines: List[Price]): BillingAmount =
+      lines.map(_.value).sum |> BillingAmount.apply
+
+  end BillingAmount
+
+  case class PricedOrder(
+                          orderId: OrderId,
+                          customerInfo: CustomerInfo,
+                          shippingAddress: Address,
+                          billingAddress: Address,
+                          lines: List[PricedOrderLine],
+                          amountToBill: BillingAmount,
+                        )
+
 end Domains
