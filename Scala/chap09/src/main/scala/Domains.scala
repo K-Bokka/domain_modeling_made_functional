@@ -123,9 +123,9 @@ object Domains:
     def apply(value: BigDecimal): Price =
       if 0D < value || value < 1_000_000D then throw new Exception("Price must be between 1,000 and 1,000,000")
       else new Price(value)
+
     def multiply(quantity: BigDecimal, price: Price) =
       quantity * price.value |> Price.apply
-
 
 
   case class PricedOrderLine(
@@ -155,5 +155,22 @@ object Domains:
                           lines: List[PricedOrderLine],
                           amountToBill: BillingAmount,
                         )
+
+  // 確認ステップ
+  case class HtmlString(value: String)
+
+  case class OrderAcknowledgement(
+                                   emailAddress: EmailAddress,
+                                   letter: HtmlString,
+                                 )
+
+  enum SendResult:
+    case Sent
+    case NotSent
+
+  case class OrderAcknowledgmentSent(
+                                      orderId: OrderId,
+                                      emailAddress: EmailAddress,
+                                    )
 
 end Domains

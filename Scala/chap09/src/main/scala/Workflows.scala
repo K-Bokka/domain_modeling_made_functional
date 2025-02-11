@@ -78,4 +78,30 @@ object Workflows:
       amountToBill
     )
 
+  type CreateOrderAcknowledgementLetter = PricedOrder => HtmlString
+
+  type SendOrderAcknowledgement = OrderAcknowledgement => SendResult
+
+  type AcknowledgeOrder =
+    CreateOrderAcknowledgementLetter // 依存
+      => SendOrderAcknowledgement // 依存
+      => PricedOrder // In
+      => Option[OrderAcknowledgmentSent] // Out
+
+  val acknowledgeOrder: AcknowledgeOrder =
+    createOrderAcknowledgementLetter => sendOrderAcknowledgement => pricedOrder =>
+    val letter = createOrderAcknowledgementLetter(pricedOrder)
+    val acknowledgement = OrderAcknowledgement(
+      emailAddress = pricedOrder.customerInfo.emailAddress,
+      letter = letter,
+    )
+    sendOrderAcknowledgement(acknowledgement) match
+      case SendResult.Sent =>
+        val event = OrderAcknowledgmentSent(
+          orderId = pricedOrder.orderId,
+          emailAddress = pricedOrder.customerInfo.emailAddress,
+        )
+        Some(event)
+      case SendResult.NotSent => None
+
 end Workflows
