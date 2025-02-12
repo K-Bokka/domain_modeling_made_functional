@@ -61,4 +61,15 @@ object Helpers:
       price,
     )
 
+  def createBillingEvent(pricedOrder: PricedOrder): Option[BillableOrderPlaced] =
+    val billingAmount = pricedOrder.amountToBill.value
+    if billingAmount > 0D then
+      Some(BillableOrderPlaced(
+        orderId = pricedOrder.orderId,
+        billingAddress = pricedOrder.billingAddress,
+        amountToBill = pricedOrder.amountToBill,
+      ))
+    else
+      None
+
 end Helpers

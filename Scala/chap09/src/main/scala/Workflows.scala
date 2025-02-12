@@ -104,4 +104,23 @@ object Workflows:
         Some(event)
       case SendResult.NotSent => None
 
+  type CreateEvents =
+    PricedOrder // In
+      => Option[OrderAcknowledgmentSent] // In
+      => List[PlaceOrderEvent] // Out
+
+  val createEvents: CreateEvents =
+    pricedOrder => acknowledgementEventOpt =>
+      val event1 = pricedOrder |> PlaceOrderEvent.Placed.apply |> Nil.::
+      val event2 = acknowledgementEventOpt.map(PlaceOrderEvent.AcknowledgmentSent(_)).toList
+      val event3 = for {
+       event <- pricedOrder |> createBillingEvent
+      } yield event |> PlaceOrderEvent.BillablePlaced.apply
+
+      List(
+        event1,
+        event2,
+        event3.toList,
+      ).flatten
+
 end Workflows

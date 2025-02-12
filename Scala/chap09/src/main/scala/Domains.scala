@@ -139,7 +139,7 @@ object Domains:
 
   object BillingAmount:
     def apply(value: BigDecimal): BillingAmount =
-      if 0D < value || value < 1_000_000D then throw new Exception("BillingAmount must be between 1,000 and 1,000,000")
+      if 0D <= value || value < 1_000_000D then throw new Exception("BillingAmount must be between 1,000 and 1,000,000")
       else new BillingAmount(value)
 
     def sumPrices(lines: List[Price]): BillingAmount =
@@ -172,5 +172,18 @@ object Domains:
                                       orderId: OrderId,
                                       emailAddress: EmailAddress,
                                     )
+
+  type OrderPlaced = PricedOrder
+
+  case class BillableOrderPlaced(
+                                  orderId: OrderId,
+                                  billingAddress: Address,
+                                  amountToBill: BillingAmount,
+                                )
+
+  enum PlaceOrderEvent:
+    case Placed(value: OrderPlaced)
+    case BillablePlaced(value: BillableOrderPlaced)
+    case AcknowledgmentSent(value: OrderAcknowledgmentSent)
 
 end Domains
