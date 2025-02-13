@@ -1,23 +1,23 @@
-import Utils.Pipe._
-import Helpers._
-import Domains._
+import Utils.Pipe.{|>, *}
+import Helpers.*
+import Domains.*
 
 object Workflows:
 
-  private def validateOrder(order: Any) = ???
-
-  private def priceOrder(order: Any) = ???
-
-  private def acknowledgeOrder(order: Any) = ???
-
-  private def createEvents(order: Any) = ???
-
-  def placeOrder(unvalidatedOrder: Any): Any =
-    unvalidatedOrder
-      |> validateOrder
-      |> priceOrder
-      |> acknowledgeOrder
-      |> createEvents
+//  private def validateOrder(order: Any) = ???
+//
+//  private def priceOrder(order: Any) = ???
+//
+//  private def acknowledgeOrder(order: Any) = ???
+//
+//  private def createEvents(order: Any) = ???
+//
+//  def placeOrder(unvalidatedOrder: Any): Any =
+//    unvalidatedOrder
+//      |> validateOrder
+//      |> priceOrder
+//      |> acknowledgeOrder
+//      |> createEvents
 
   type CheckAddressExists = UnvalidatedAddress => CheckedAddress
 
@@ -55,6 +55,8 @@ object Workflows:
 
   type GetProductPrice = ProductCode => Price
 
+  private val getProductPrice: GetProductPrice = ???
+
   type PriceOrder =
     GetProductPrice // 依存
       => ValidatedOrder // In
@@ -80,7 +82,11 @@ object Workflows:
 
   type CreateOrderAcknowledgementLetter = PricedOrder => HtmlString
 
+  private val createAcknowledgmentLetter: CreateOrderAcknowledgementLetter = ???
+
   type SendOrderAcknowledgement = OrderAcknowledgement => SendResult
+
+  private val sendAcknowledgment: SendOrderAcknowledgement = ???
 
   type AcknowledgeOrder =
     CreateOrderAcknowledgementLetter // 依存
@@ -122,5 +128,19 @@ object Workflows:
         event2,
         event3.toList,
       ).flatten
+
+  type PlaceOrder = UnvalidatedOrder => List[PlaceOrderEvent]
+
+  val placeOrder : PlaceOrder =
+    val validateOrderCurried = validateOrder(checkProductCodeExists)(checkAddressExists)
+    val priceOrderCurried = priceOrder(getProductPrice)
+    val acknowledgeOrderCurried = acknowledgeOrder(createAcknowledgmentLetter)(sendAcknowledgment)
+    unvalidatedOrder =>
+        val validatedOrder = unvalidatedOrder |> validateOrderCurried
+        val pricedOrder = validatedOrder |> priceOrderCurried
+        val acknowledgementOpt = pricedOrder |> acknowledgeOrderCurried
+        val events = createEvents(pricedOrder)(acknowledgementOpt)
+        events
+
 
 end Workflows
