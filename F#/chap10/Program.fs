@@ -46,3 +46,21 @@ module C100201 =
         | ValidationError of string
         | ProductOutOfStock of ProductCode
         | RemoteServiceError of RemoteServiceError
+
+module C100301 =
+    module Pattern1 =
+        let bind switchFn =
+            fun twoTrackInput ->
+                match twoTrackInput with
+                | Ok success -> switchFn success
+                | Error failure -> Error failure
+
+    let bind switchFn twoTrackInput =
+        match twoTrackInput with
+        | Ok success -> switchFn success
+        | Error failure -> Error failure
+
+    let map f aResult =
+        match aResult with
+        | Ok success -> Ok(f success)
+        | Error failure -> Error failure
