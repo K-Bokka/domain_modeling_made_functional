@@ -80,6 +80,11 @@ module Result =
         | Ok success -> Ok(f success)
         | Error failure -> Error failure
 
+    let mapError f aResult =
+        match aResult with
+        | Ok success -> Ok success
+        | Error failure -> Error(f failure)
+
 module C100303 =
     type Apple = Apple of string
     type Bananas = Bananas of string
@@ -102,3 +107,28 @@ module C100303 =
     //     input |> functionA |> Result.bind functionC
     printfn
         "./domain_modeling_made_functional/F#/chap10/Program.fs(102,43): error FS0001: 型が一致しません。    'Bananas -> Result<'a,string>'    という指定が必要ですが、    'FunctionC'    が指定されました。型 'Cherries' は型 'Bananas' と一致しません"
+
+module C100304 =
+    type Apple = Apple of string
+    type AppleError = AppleError of string
+    type Bananas = Bananas of string
+    type BananaError = BananaError of string
+    type Cherries = Cherries of string
+
+    type FunctionA = Apple -> Result<Bananas, AppleError>
+    type FunctionB = Bananas -> Result<Cherries, BananaError>
+    let functionA: FunctionA = fun _ -> Ok(Bananas "bananas")
+    let functionB: FunctionB = fun _ -> Ok(Cherries "cherries")
+
+    type FruitError =
+        | AppleErrorCase of AppleError
+        | BananaErrorCase of BananaError
+
+    let functionAWithFruitError input =
+        input |> functionA |> Result.mapError AppleErrorCase
+
+    let functionBWithFruitError input =
+        input |> functionB |> Result.mapError BananaErrorCase
+
+    let functionAB input =
+        input |> functionAWithFruitError |> Result.bind functionBWithFruitError
