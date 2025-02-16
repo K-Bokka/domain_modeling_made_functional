@@ -132,3 +132,44 @@ module C100304 =
 
     let functionAB input =
         input |> functionAWithFruitError |> Result.bind functionBWithFruitError
+
+module C1004 =
+    type UnvalidatedOrder = Undefined
+    type ValidatedOrder = ValidatedOrder of string
+    type ValidationError = Undefined
+    type ValidateOrder = UnvalidatedOrder -> Result<ValidatedOrder, ValidationError>
+    let validateOrder: ValidateOrder = fun _ -> Ok(ValidatedOrder "validated")
+
+    type PricedOrder = PricedOrder of string
+    type PricingError = Undefined
+    type PriceOrder = ValidatedOrder -> Result<PricedOrder, PricingError>
+    let priceOrder: PriceOrder = fun _ -> Ok(PricedOrder "priced")
+
+    type OrderAcknowledgmentSent = Undefined
+    type AcknowledgeOrder = PricedOrder -> OrderAcknowledgmentSent option
+    let acknowledgeOrder: AcknowledgeOrder = fun _ -> None
+
+    type PlaceOrderEvent = Undefined
+    type CreateEvents = PricedOrder -> OrderAcknowledgmentSent option -> PlaceOrderEvent list
+    let createEvents: CreateEvents = fun pricedOrder orderAcknowledgmentSentOpt -> []
+
+    type PlaceOrderError =
+        | Validation of ValidationError
+        | Pricing of PricingError
+
+    let validateOrderAdapted input =
+        input |> validateOrder |> Result.mapError PlaceOrderError.Validation
+
+    let priceOrderAdapted input =
+        input |> priceOrder |> Result.mapError PlaceOrderError.Pricing
+
+    let placeOrder unvalidatedOrder =
+        unvalidatedOrder
+        |> validateOrderAdapted
+        |> Result.bind priceOrderAdapted
+        |> Result.map acknowledgeOrder
+    // |> Result.map createEvents
+
+    // acknowledgeOrder の出力と createEvents の入力が違うのでコンパイルできない
+    printfn
+        "./domain_modeling_made_functional/F#/chap10/Program.fs(173,23): error FS0001: 型が一致しません。    'OrderAcknowledgmentSent option -> 'a'    という指定が必要ですが、    'CreateEvents'    が指定されました。型 'PricedOrder' は型 'OrderAcknowledgmentSent option' と一致しません"
