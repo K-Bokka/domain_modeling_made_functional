@@ -64,3 +64,18 @@ module C100301 =
         match aResult with
         | Ok success -> Ok(f success)
         | Error failure -> Error failure
+
+type Result<'Success, 'Failure> =
+    | Ok of 'Success
+    | Error of 'Failure
+
+module Result =
+    let bind f aResult =
+        match aResult with
+        | Ok success -> f success
+        | Error failure -> Error failure
+
+    let map f aResult =
+        match aResult with
+        | Ok success -> Ok(f success)
+        | Error failure -> Error failure
