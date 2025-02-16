@@ -36,4 +36,13 @@ module C1002 =
         | :? DivideByZeroException -> printfn "exited with DivideByZeroException"
         | ex -> printfn $"exited with %s{ex.Message}"
 
-C1002.main()
+C1002.main ()
+
+module C100201 =
+    type ProductCode = Undefined
+    type RemoteServiceError = Undefined
+
+    type PlaceOrderError =
+        | ValidationError of string
+        | ProductOutOfStock of ProductCode
+        | RemoteServiceError of RemoteServiceError
