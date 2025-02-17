@@ -173,3 +173,58 @@ module C1004 =
     // acknowledgeOrder の出力と createEvents の入力が違うのでコンパイルできない
     printfn
         "./domain_modeling_made_functional/F#/chap10/Program.fs(173,23): error FS0001: 型が一致しません。    'OrderAcknowledgmentSent option -> 'a'    という指定が必要ですが、    'CreateEvents'    が指定されました。型 'PricedOrder' は型 'OrderAcknowledgmentSent option' と一致しません"
+
+module C100501 =
+    type ServiceInfo = { Name: string; Endpoint: Uri }
+
+    type RemoteServiceError =
+        { Service: ServiceInfo
+          Exception: Exception }
+
+    exception AuthorizationException of string
+
+    let ServiceExceptionAdapter serviceInfo serviceFn x =
+        try
+            Ok(serviceFn x)
+        with
+        | :? TimeoutException as ex ->
+            Error
+                { Service = serviceInfo
+                  Exception = ex }
+        | :? AuthorizationException as ex ->
+            Error
+                { Service = serviceInfo
+                  Exception = ex }
+
+    let ServiceExceptionAdapter2 serviceInfo serviceFn x y =
+        try
+            Ok(serviceFn x y)
+        with
+        | :? TimeoutException as ex ->
+            Error
+                { Service = serviceInfo
+                  Exception = ex }
+        | :? AuthorizationException as ex ->
+            Error
+                { Service = serviceInfo
+                  Exception = ex }
+
+
+    type ValidationError = Undefined
+    type PricingError = Undefined
+
+    type PlaceOrderError =
+        | Validation of ValidationError
+        | Pricing of PricingError
+        | RemoteService of RemoteServiceError // 追加
+
+    let serviceInfo =
+        { Name = "AddressCheckService"
+          Endpoint = Uri "https://any.com/endpoint" }
+
+    let checkAddressExists address = failwith "Any exception"
+
+    let checkAddressExistsR address =
+        let adaptedService = ServiceExceptionAdapter serviceInfo checkAddressExists
+
+        address |> adaptedService |> Result.mapError RemoteService
