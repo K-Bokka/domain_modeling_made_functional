@@ -228,3 +228,12 @@ module C100501 =
         let adaptedService = ServiceExceptionAdapter serviceInfo checkAddressExists
 
         address |> adaptedService |> Result.mapError RemoteService
+
+let tee f x =
+    f x
+    x
+
+module C100502 =
+    let logError msg = printfn $"Error %s{msg}"
+
+    let adaptDeadEnd f = Result.map (tee f)
