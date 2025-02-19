@@ -85,6 +85,16 @@ module Result =
         | Ok success -> Ok success
         | Error failure -> Error(f failure)
 
+    let prepend firstR restR =
+        match firstR, restR with
+        | Ok first, Ok rest -> Ok(first :: rest)
+        | Error err1, _ -> Error err1
+        | Ok _, Error err2 -> Error err2
+
+    let sequence aListOfResults =
+        let initialValue = Ok []
+        List.foldBack prepend aListOfResults initialValue
+
 module C100303 =
     type Apple = Apple of string
     type Bananas = Bananas of string
@@ -365,6 +375,57 @@ module C100602 =
                       ShippingAddress = shippingAddress
                       BillingAddress = billingAddress
                       Lines = lines }
+
+                return validatedOrder
+            }
+
+module C100603 =
+    type ValidatedOrder = { Lines: string list }
+    let checkProductCodeExists _ = failwith "Not impl"
+
+    module Pattern1 =
+        let toValidatedOrderLine _ = failwith "Not impl"
+
+        let validateOrder unvalidatedOrder =
+            let lines =
+                unvalidatedOrder.Lines |> List.map (toValidatedOrderLine checkProductCodeExists)
+
+            let validatedOrder: ValidatedOrder = { Lines = lines }
+            validatedOrder
+
+    module Pattern2 =
+        let toValidatedOrderLine _ = Error
+
+        let validateOrder unvalidatedOrder =
+            let lines =
+                unvalidatedOrder.Lines |> List.map (toValidatedOrderLine checkProductCodeExists)
+
+            // let validatedOrder: ValidatedOrder = { Lines = lines }
+            printfn
+                "./domain_modeling_made_functional/F#/chap10/Program.fs(393,60): error FS0001: 型 'string' は型 'Result<'a,string>' と一致しません"
+
+            failwith "Build Error"
+
+
+    type IntOrError = Result<int, string>
+
+    let listOfSuccesses: IntOrError list = [ Ok 1; Ok 2 ]
+    let successResult = Result.sequence listOfSuccesses
+
+    let listOfErrors: IntOrError list = [ Error "bad"; Error "terrible" ]
+    let errorResult = Result.sequence listOfErrors
+
+    module Pattern3 =
+        let toValidatedOrderLine _ = Error
+
+        let validateOrder unvalidatedOrder =
+            result {
+                let! lines =
+                    unvalidatedOrder.Lines
+                    |> List.map (toValidatedOrderLine checkProductCodeExists)
+                    |> Result.sequence
+
+                let validatedOrder: ValidatedOrder = { Lines = lines }
 
                 return validatedOrder
             }
