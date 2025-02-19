@@ -237,3 +237,37 @@ module C100502 =
     let logError msg = printfn $"Error %s{msg}"
 
     let adaptDeadEnd f = Result.map (tee f)
+
+// コンピュテーション式
+type ResultBuilder() =
+    member this.Return(x) = Ok x
+    member this.Bind(x, f) = Result.bind f x
+
+let result = ResultBuilder()
+
+module C1006 =
+    // コンピュテーション式を使用すると
+    // module C1004: 166行目の placeOrder を以下のように書き換えられる
+    type ValidationError = Undefined
+    type PricingError = Undefined
+    type RemoteServiceError = Undefined
+
+    type PlaceOrderError =
+        | Validation of ValidationError
+        | Pricing of PricingError
+        | RemoteService of RemoteServiceError
+
+    let validateOrder _ = failwith "Not impl"
+    let priceOrder _ = failwith "Not impl"
+    let acknowledgeOrder _ = failwith "Not impl"
+    let createEvents _ = failwith "Not impl"
+
+
+    let placeOrder unvalidatedOrder =
+        result {
+            let! validatedOrder = validateOrder unvalidatedOrder |> Result.mapError PlaceOrderError.Validation
+            let! pricedOrder = priceOrder validatedOrder |> Result.mapError PlaceOrderError.Pricing
+            let acknowledgmentOption = acknowledgeOrder pricedOrder
+            let events = createEvents pricedOrder acknowledgmentOption
+            return events
+        }
