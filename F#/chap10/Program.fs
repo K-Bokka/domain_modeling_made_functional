@@ -271,3 +271,24 @@ module C1006 =
             let events = createEvents pricedOrder acknowledgmentOption
             return events
         }
+
+module C100601 =
+    let validateOrder input =
+        result {
+            let! validatedOrder = failwith "Not impl"
+            return validatedOrder
+        }
+
+    let priceOrder input =
+        result {
+            let! pricedOrder = failwith "Not impl"
+            return pricedOrder
+        }
+
+    let placeOrder unvalidatedOrder =
+        result {
+            let! validatedOrder = validateOrder unvalidatedOrder
+            let! pricedOrder = priceOrder validatedOrder
+
+            return pricedOrder
+        }
