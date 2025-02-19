@@ -85,6 +85,16 @@ module Result =
         | Ok success -> Ok success
         | Error failure -> Error(f failure)
 
+    let prepend firstR restR =
+        match firstR, restR with
+        | Ok first, Ok rest -> Ok(first :: rest)
+        | Error err1, _ -> Error err1
+        | Ok _, Error err2 -> Error err2
+
+    let sequence aListOfResults =
+        let initialValue = Ok []
+        List.foldBack prepend aListOfResults initialValue
+
 module C100303 =
     type Apple = Apple of string
     type Bananas = Bananas of string
@@ -237,3 +247,185 @@ module C100502 =
     let logError msg = printfn $"Error %s{msg}"
 
     let adaptDeadEnd f = Result.map (tee f)
+
+// コンピュテーション式
+type ResultBuilder() =
+    member this.Return(x) = Ok x
+    member this.Bind(x, f) = Result.bind f x
+
+let result = ResultBuilder()
+
+module C1006 =
+    // コンピュテーション式を使用すると
+    // module C1004: 166行目の placeOrder を以下のように書き換えられる
+    type ValidationError = Undefined
+    type PricingError = Undefined
+    type RemoteServiceError = Undefined
+
+    type PlaceOrderError =
+        | Validation of ValidationError
+        | Pricing of PricingError
+        | RemoteService of RemoteServiceError
+
+    let validateOrder _ = failwith "Not impl"
+    let priceOrder _ = failwith "Not impl"
+    let acknowledgeOrder _ = failwith "Not impl"
+    let createEvents _ = failwith "Not impl"
+
+
+    let placeOrder unvalidatedOrder =
+        result {
+            let! validatedOrder = validateOrder unvalidatedOrder |> Result.mapError PlaceOrderError.Validation
+            let! pricedOrder = priceOrder validatedOrder |> Result.mapError PlaceOrderError.Pricing
+            let acknowledgmentOption = acknowledgeOrder pricedOrder
+            let events = createEvents pricedOrder acknowledgmentOption
+            return events
+        }
+
+module C100601 =
+    let validateOrder input =
+        result {
+            let! validatedOrder = failwith "Not impl"
+            return validatedOrder
+        }
+
+    let priceOrder input =
+        result {
+            let! pricedOrder = failwith "Not impl"
+            return pricedOrder
+        }
+
+    let placeOrder unvalidatedOrder =
+        result {
+            let! validatedOrder = validateOrder unvalidatedOrder
+            let! pricedOrder = priceOrder validatedOrder
+
+            return pricedOrder
+        }
+
+module C100602 =
+    type Undefined = string
+    type CheckProductCodeExists = Undefined
+    type CheckAddressExists = Undefined
+
+    type UnvalidatedOrder =
+        { OrderId: Undefined
+          CustomerInfo: Undefined
+          ShippingAddress: Undefined
+          BillingAddress: Undefined
+          Lines: Undefined }
+
+    type ValidatedOrder = UnvalidatedOrder
+
+    module OrderId =
+        let create _ = failwith "Not impl"
+
+    let toCustomerInfo _ = failwith "Not impl"
+    let toAddress _ = failwith "Not impl"
+
+    module Pattern1 =
+        type ValidateOrder =
+            CheckProductCodeExists // dependency
+                -> CheckAddressExists // dependency
+                -> UnvalidatedOrder // input
+                -> ValidatedOrder // output
+
+        let validateOrder: ValidateOrder =
+            fun checkProductCodeExists checkAddressExists unvalidatedOrder ->
+                let orderId = unvalidatedOrder.OrderId |> OrderId.create
+                let customerInfo = unvalidatedOrder.CustomerInfo |> toCustomerInfo
+
+                let shippingAddress =
+                    unvalidatedOrder.ShippingAddress |> toAddress checkAddressExists
+
+                let billingAddress = failwith "Not impl"
+                let lines = failwith "Not impl"
+
+                let validatedOrder: ValidatedOrder =
+                    { OrderId = orderId
+                      CustomerInfo = customerInfo
+                      ShippingAddress = shippingAddress
+                      BillingAddress = billingAddress
+                      Lines = lines }
+
+                validatedOrder
+
+
+    type ValidationError = ValidationError of string
+
+    type ValidateOrder =
+        CheckProductCodeExists // dependency
+            -> CheckAddressExists // dependency
+            -> UnvalidatedOrder // input
+            -> Result<ValidatedOrder, ValidationError> // output
+
+    let validateOrder: ValidateOrder =
+        fun checkProductCodeExists checkAddressExists unvalidatedOrder ->
+            result {
+                let! orderId = unvalidatedOrder.OrderId |> OrderId.create |> Result.mapError ValidationError
+                let! customerInfo = unvalidatedOrder.CustomerInfo |> toCustomerInfo
+                let! shippingAddress = unvalidatedOrder.ShippingAddress |> toAddress checkAddressExists
+
+                let billingAddress = failwith "Not impl"
+                let lines = failwith "Not impl"
+
+                let validatedOrder: ValidatedOrder =
+                    { OrderId = orderId
+                      CustomerInfo = customerInfo
+                      ShippingAddress = shippingAddress
+                      BillingAddress = billingAddress
+                      Lines = lines }
+
+                return validatedOrder
+            }
+
+module C100603 =
+    type ValidatedOrder = { Lines: string list }
+    let checkProductCodeExists _ = failwith "Not impl"
+
+    module Pattern1 =
+        let toValidatedOrderLine _ = failwith "Not impl"
+
+        let validateOrder unvalidatedOrder =
+            let lines =
+                unvalidatedOrder.Lines |> List.map (toValidatedOrderLine checkProductCodeExists)
+
+            let validatedOrder: ValidatedOrder = { Lines = lines }
+            validatedOrder
+
+    module Pattern2 =
+        let toValidatedOrderLine _ = Error
+
+        let validateOrder unvalidatedOrder =
+            let lines =
+                unvalidatedOrder.Lines |> List.map (toValidatedOrderLine checkProductCodeExists)
+
+            // let validatedOrder: ValidatedOrder = { Lines = lines }
+            printfn
+                "./domain_modeling_made_functional/F#/chap10/Program.fs(393,60): error FS0001: 型 'string' は型 'Result<'a,string>' と一致しません"
+
+            failwith "Build Error"
+
+
+    type IntOrError = Result<int, string>
+
+    let listOfSuccesses: IntOrError list = [ Ok 1; Ok 2 ]
+    let successResult = Result.sequence listOfSuccesses
+
+    let listOfErrors: IntOrError list = [ Error "bad"; Error "terrible" ]
+    let errorResult = Result.sequence listOfErrors
+
+    module Pattern3 =
+        let toValidatedOrderLine _ = Error
+
+        let validateOrder unvalidatedOrder =
+            result {
+                let! lines =
+                    unvalidatedOrder.Lines
+                    |> List.map (toValidatedOrderLine checkProductCodeExists)
+                    |> Result.sequence
+
+                let validatedOrder: ValidatedOrder = { Lines = lines }
+
+                return validatedOrder
+            }
