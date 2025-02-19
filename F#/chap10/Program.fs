@@ -292,3 +292,79 @@ module C100601 =
 
             return pricedOrder
         }
+
+module C100602 =
+    type Undefined = string
+    type CheckProductCodeExists = Undefined
+    type CheckAddressExists = Undefined
+
+    type UnvalidatedOrder =
+        { OrderId: Undefined
+          CustomerInfo: Undefined
+          ShippingAddress: Undefined
+          BillingAddress: Undefined
+          Lines: Undefined }
+
+    type ValidatedOrder = UnvalidatedOrder
+
+    module OrderId =
+        let create _ = failwith "Not impl"
+
+    let toCustomerInfo _ = failwith "Not impl"
+    let toAddress _ = failwith "Not impl"
+
+    module Pattern1 =
+        type ValidateOrder =
+            CheckProductCodeExists // dependency
+                -> CheckAddressExists // dependency
+                -> UnvalidatedOrder // input
+                -> ValidatedOrder // output
+
+        let validateOrder: ValidateOrder =
+            fun checkProductCodeExists checkAddressExists unvalidatedOrder ->
+                let orderId = unvalidatedOrder.OrderId |> OrderId.create
+                let customerInfo = unvalidatedOrder.CustomerInfo |> toCustomerInfo
+
+                let shippingAddress =
+                    unvalidatedOrder.ShippingAddress |> toAddress checkAddressExists
+
+                let billingAddress = failwith "Not impl"
+                let lines = failwith "Not impl"
+
+                let validatedOrder: ValidatedOrder =
+                    { OrderId = orderId
+                      CustomerInfo = customerInfo
+                      ShippingAddress = shippingAddress
+                      BillingAddress = billingAddress
+                      Lines = lines }
+
+                validatedOrder
+
+
+    type ValidationError = ValidationError of string
+
+    type ValidateOrder =
+        CheckProductCodeExists // dependency
+            -> CheckAddressExists // dependency
+            -> UnvalidatedOrder // input
+            -> Result<ValidatedOrder, ValidationError> // output
+
+    let validateOrder: ValidateOrder =
+        fun checkProductCodeExists checkAddressExists unvalidatedOrder ->
+            result {
+                let! orderId = unvalidatedOrder.OrderId |> OrderId.create |> Result.mapError ValidationError
+                let! customerInfo = unvalidatedOrder.CustomerInfo |> toCustomerInfo
+                let! shippingAddress = unvalidatedOrder.ShippingAddress |> toAddress checkAddressExists
+
+                let billingAddress = failwith "Not impl"
+                let lines = failwith "Not impl"
+
+                let validatedOrder: ValidatedOrder =
+                    { OrderId = orderId
+                      CustomerInfo = customerInfo
+                      ShippingAddress = shippingAddress
+                      BillingAddress = billingAddress
+                      Lines = lines }
+
+                return validatedOrder
+            }
