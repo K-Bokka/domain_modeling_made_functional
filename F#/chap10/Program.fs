@@ -429,3 +429,66 @@ module C100603 =
 
                 return validatedOrder
             }
+
+module Async =
+    let map f xA =
+        async {
+            let! x = xA
+            return f x
+        }
+
+    let ret x = async.Return x
+
+type AsyncResult<'success, 'failure> = Async<Result<'success, 'failure>>
+
+module AsyncResult =
+    let map f (x: AsyncResult<_, _>) : AsyncResult<_, _> = Async.map (Result.map f) x
+    let mapError f (x: AsyncResult<_, _>) : AsyncResult<_, _> = Async.map (Result.mapError f) x
+    let ret x : AsyncResult<_, _> = x |> Result.Ok |> Async.ret
+
+    let bind (f: 'a -> AsyncResult<'b, 'c>) (xAsyncResult: AsyncResult<_, _>) : AsyncResult<_, _> =
+        async {
+            let! xResult = xAsyncResult
+
+            match xResult with
+            | Ok x -> return! f x
+            | Error err -> return (Error err)
+        }
+
+    let ofResult x : AsyncResult<_, _> = x |> Async.ret
+
+module AsyncResultComputationExpression =
+
+    type AsyncResultBuilder() =
+        member _.Return(x) = AsyncResult.ret x
+        member _.Bind(x, f) = AsyncResult.bind f x
+
+    let asyncResult = AsyncResultBuilder()
+
+
+module C1008 =
+    open AsyncResultComputationExpression
+
+    type Undefined = string
+    type UnvalidatedOrder = { OrderId: Undefined }
+
+    module OrderId =
+        let create _ = failwith "Not impl"
+
+    type ValidatedOrder = UnvalidatedOrder
+    type ValidationError = ValidationError of string
+
+    type ValidateOrder = UnvalidatedOrder -> AsyncResult<ValidatedOrder, ValidationError>
+
+    let validateOrder: ValidateOrder =
+        fun unvalidatedOrder ->
+            asyncResult {
+                let! orderId =
+                    unvalidatedOrder.OrderId
+                    |> OrderId.create
+                    |> Result.mapError ValidationError
+                    |> AsyncResult.ofResult
+
+                let validatedOrder: ValidatedOrder = { OrderId = orderId }
+                return validatedOrder
+            }
