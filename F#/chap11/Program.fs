@@ -62,27 +62,27 @@ module C1104 =
               Last: string
               Birthdate: DateTime }
 
-    module Person =
-        let fromDomain (person: Domain.Person) : Dto.Person =
-            let first = person.First |> String50.value
-            let last = person.Last |> String50.value
-            let birthdate = person.Birthdate |> Birthdate.value
+        module Person =
+            let fromDomain (person: Domain.Person) : Person =
+                let first = person.First |> String50.value
+                let last = person.Last |> String50.value
+                let birthdate = person.Birthdate |> Birthdate.value
 
-            { First = first
-              Last = last
-              Birthdate = birthdate }
+                { First = first
+                  Last = last
+                  Birthdate = birthdate }
 
-        let toDomain (person: Dto.Person) : Result<Domain.Person, string> =
-            result {
-                let! first = person.First |> String50.create
-                let! last = person.Last |> String50.create
-                let! birthdate = person.Birthdate |> Birthdate.create
+            let toDomain (person: Person) : Result<Domain.Person, string> =
+                result {
+                    let! first = person.First |> String50.create
+                    let! last = person.Last |> String50.create
+                    let! birthdate = person.Birthdate |> Birthdate.create
 
-                return
-                    { First = first
-                      Last = last
-                      Birthdate = birthdate }
-            }
+                    return
+                        { First = first
+                          Last = last
+                          Birthdate = birthdate }
+                }
 
     module Json =
         open Newtonsoft.Json
@@ -93,3 +93,33 @@ module C1104 =
                 JsonConvert.DeserializeObject<'a> str |> Result.Ok
             with ex ->
                 Result.Error ex
+
+    let jsonFromDomain (person: Domain.Person) =
+        person |> Dto.Person.fromDomain |> Json.serialize
+
+    let person: Domain.Person =
+        { First = String50 "Alex"
+          Last = String50 "Adams"
+          Birthdate = Birthdate(DateTime(1980, 1, 1)) }
+
+    jsonFromDomain person |> printfn "%A"
+
+    type DtoError =
+        | ValidationError of string
+        | DeserializationException of exn
+
+    let jsonToDomain jsonString : Result<Domain.Person, DtoError> =
+        result {
+            let! deserializedValue = jsonString |> Json.deserialize |> Result.mapError DeserializationException
+
+            let! domainValue = deserializedValue |> Dto.Person.toDomain |> Result.mapError ValidationError
+
+            return domainValue
+        }
+
+    let jsonPerson =
+        """{"First":"Alex","Last":"Adams","Birthdate":"1980-01-01T00:00:00"}"""
+    jsonToDomain jsonPerson |> printfn "%A"
+    
+    let jsonPersonWithErrors = """{"First""Alex","Last":"Adams","Birthdate":"1980-01-01T00:00:00"}"""
+    jsonToDomain jsonPersonWithErrors |> printfn "%A"
