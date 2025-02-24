@@ -1,4 +1,6 @@
-﻿printfn "Chapter 12"
+﻿open Microsoft.FSharp.Core
+
+printfn "Chapter 12"
 
 type Undefined = Undefined of string
 let notImplemented _ = failwith "Not impl"
@@ -109,4 +111,21 @@ module C1202 =
         type ReadData = Query -> DbResult<Data>
         type UpdateData = Data -> DbResult<Unit>
         type DeleteData = Key -> DbResult<Unit>
-        
+
+    // C120201
+    type Customer = Undefined
+    type CustomerId = Undefined
+
+    module UseSameType =
+        type SaveCustomer = Customer -> DbResult<Unit>
+        type LoadCustomer = CustomerId -> DbResult<Customer>
+
+    module WriteModel =
+        type Customer = Undefined
+
+    module ReadModel =
+        type Customer = Undefined
+
+    module CQRS =
+        type SaveCustomer = WriteModel.Customer -> DbResult<Unit>
+        type LoadCustomer = CustomerId -> DbResult<ReadModel.Customer>
