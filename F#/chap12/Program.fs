@@ -1,6 +1,4 @@
-﻿open Microsoft.FSharp.Core
-
-printfn "Chapter 12"
+﻿printfn "Chapter 12"
 
 type Undefined = Undefined of string
 let notImplemented _ = failwith "Not impl"
