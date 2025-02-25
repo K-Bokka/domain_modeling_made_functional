@@ -1,4 +1,7 @@
-﻿printfn "Chapter 12"
+﻿open System
+open Azure.Storage.Blobs.Specialized
+
+printfn "Chapter 12"
 
 type Undefined = Undefined of string
 let notImplemented _ = failwith "Not impl"
@@ -127,3 +130,35 @@ module C1202 =
     module CQRS =
         type SaveCustomer = WriteModel.Customer -> DbResult<Unit>
         type LoadCustomer = CustomerId -> DbResult<ReadModel.Customer>
+
+module Json =
+
+    open Newtonsoft.Json
+
+    let serialize obj = JsonConvert.SerializeObject obj
+
+    let deserialize<'a> str =
+        try
+            JsonConvert.DeserializeObject<'a> str |> Result.Ok
+        with ex ->
+            Result.Error ex
+
+module C1204 =
+    open Azure.Storage.Blobs
+
+    let connString = "... Azure connection string ..."
+    let containerName = "person"
+
+    let blobServiceClient = BlobServiceClient(connString)
+    let containerClient = blobServiceClient.GetBlobContainerClient(containerName)
+
+
+    containerClient.CreateIfNotExists() |> ignore
+
+    type PersonDto = { PersonId: int }
+
+    let savePersonDtoToBlob personDto =
+        let blobId = $"Person%i{personDto.PersonId}"
+        let blobClient = containerClient.GetBlobClient(blobId)
+        let json = Json.serialize personDto
+        blobClient.Upload(BinaryData(json), overwrite = true)
