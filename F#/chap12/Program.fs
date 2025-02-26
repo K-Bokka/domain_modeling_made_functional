@@ -162,3 +162,96 @@ module C1204 =
         let blobClient = containerClient.GetBlobClient(blobId)
         let json = Json.serialize personDto
         blobClient.Upload(BinaryData(json), overwrite = true)
+
+module C1205 =
+    type CustomerId = CustomerId of int
+    type String50 = String50 of string
+    type Birthdate = Birthdate of DateTime
+
+    type Customer =
+        { CustomerId: CustomerId
+          Name: String50
+          Birthdate: Birthdate }
+
+    (*>
+    CREATE TABLE Customer (
+      CustomerId int NOT NULL,
+      Name NVARCHAR(50) NOT NULL,
+      Birthdate DATETIME NULL,
+      CONSTRAINT PK_Customer PRIMARY KEY (CustomerId)
+    <*)
+
+    // C120501
+    type Contact =
+        { ContactId: ContactId
+          Info: ContactInfo }
+
+    and ContactInfo =
+        | Email of EmailAddress
+        | Phone of PhoneNumber
+
+    and ContactId = ContactId of int
+    and EmailAddress = EmailAddress of string
+    and PhoneNumber = PhoneNumber of string
+
+    (*>
+    CREATE TABLE ContactInfo (
+       ContactId int NOT NULL,
+       IsEmail bit NOT NULL,
+       IsPhone bit NOT NULL,
+       EmailAddress NVARCHAR(100),
+       PhoneNumber NVARCHAR(25),
+       CONSTRAINT PK_ContactInfo PRIMARY KEY (ContactId)
+    )
+    <*)
+
+    (*>
+    CREATE TABLE ContactInfo (
+       ContactId int NOT NULL,
+       IsEmail bit NOT NULL,
+       IsPhone bit NOT NULL,
+       CONSTRAINT PK_ContactInfo PRIMARY KEY (ContactId)
+    )
+
+    CREATE TABLE ContactEmail (
+       ContactId int NOT NULL,
+       EmailAddress NVARCHAR(100) NOT NULL,
+       CONSTRAINT PK_ContactEmail PRIMARY KEY (ContactId)
+    )
+
+    CREATE TABLE ContactPhone (
+       ContactId int NOT NULL,
+       PhoneNumber NVARCHAR(25) NOT NULL,
+       CONSTRAINT PK_ContactPhone PRIMARY KEY (ContactId)
+    )
+    <*)
+
+    // C120502
+    (*>
+    CREATE TABLE Order (
+       OrderId int NOT NULL
+       -- ...
+    )
+
+    CREATE TABLE OrderLine (
+       OrderLineId int NOT NULL,
+       OrderId int NOT NULL,
+    )
+    <*)
+
+    (*>
+    CREATE TABLE Order (
+       OrderId int NOT NULL,
+       -- ...
+
+       ShippingAddress1 varchar(50)
+       ShippingAddress2 varchar(50)
+       ShippingAddressCity varchar(50)
+       -- ...
+
+       BillingAddress1 varchar(50)
+       BillingAddress2 varchar(50)
+       BillingAddressCity varchar(50)
+       -- ...
+    )
+    <*)
