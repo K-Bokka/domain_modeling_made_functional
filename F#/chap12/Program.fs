@@ -255,3 +255,13 @@ module C1205 =
        -- ...
     )
     <*)
+    
+    // C120503
+    (*>
+    SqlCommandProvider がどうやっても動かなかった
+    なのでこの部分の写経はパスする
+    
+    https://github.com/fsprojects/FSharp.Data.SqlClient/issues/373
+    <*)
+
+    
