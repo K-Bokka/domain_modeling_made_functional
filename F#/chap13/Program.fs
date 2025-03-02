@@ -1,5 +1,7 @@
 ﻿printfn "Chapter 13"
 
+type Undefined = Undefined of string
+let undefined _ = failwith "Not Impl"
 
 type ValidatedOrder = { ShippingAddress: ShippingAddress }
 and ShippingAddress = { State: string; Country: string }
@@ -35,3 +37,65 @@ module C130101 =
         | UsLocalState -> 5.0
         | UsRemoteState -> 10.0
         | International -> 20.0
+
+module C130102 =
+    type OrderId = OrderId of string
+    type Price = Undefined
+    type PricedOrderProductLine = Undefined
+
+    type PricedOrder =
+        { OrderId: OrderId
+          OrderTotal: Price
+          ProductLine: PricedOrderProductLine list }
+
+    type PricedOrderWithShippingInfo = Undefined
+
+    type AddShippingInfoToOrder = PricedOrder -> PricedOrderWithShippingInfo
+
+    type ShippingMethod =
+        | PostalService
+        | Fedex24
+        | Fedex48
+        | Ups48
+
+
+    type ShippingInfo =
+        { ShippingMethod: ShippingMethod
+          ShippingCost: Price }
+
+    type PricedOrderWithShippingMethod =
+        { ShippingInfo: ShippingInfo
+          PricedOrder: PricedOrder }
+
+    type PricedOrder' =
+        { OrderId: OrderId
+          ShippingInfo: ShippingInfo
+          ProductLine: PricedOrderProductLine list }
+
+    type PricedOrder'' =
+        { OrderId: OrderId
+          ProductLine: PricedOderLine list }
+
+    and PricedOderLine =
+        | Product of PricedOrderProductLine
+        | ShippingInfo of ShippingInfo
+
+    type AddShippingInfoToOrder' = PricedOrder -> PricedOrder'
+
+    let addShippingInfoToOrder calculateShippingCost : AddShippingInfoToOrder' =
+        fun pricedOrder ->
+            let shippingInfo =
+                { ShippingMethod = undefined ()
+                  ShippingCost = calculateShippingCost pricedOrder }
+
+            { OrderId = pricedOrder.OrderId
+              ShippingInfo = shippingInfo
+              ProductLine = [] }
+
+    let unvalidatedOrder _ = undefined ()
+    let calculateShippingCost = undefined ()
+    let validateOrder unvalidatedOrder = undefined ()
+    let priceOrder validatedOrder = undefined ()
+    let addShippingInfo = addShippingInfoToOrder calculateShippingCost
+
+    let pricedOrder' = unvalidatedOrder |> validateOrder |> priceOrder |> addShippingInfo
