@@ -98,4 +98,72 @@ module C130102 =
     let priceOrder validatedOrder = undefined ()
     let addShippingInfo = addShippingInfoToOrder calculateShippingCost
 
-    let pricedOrder' = unvalidatedOrder |> validateOrder |> priceOrder |> addShippingInfo
+    let pricedOrder' =
+        unvalidatedOrder |> validateOrder |> priceOrder |> addShippingInfo
+
+module C1302 =
+    type OrderId = OrderId of int
+    type CustomerId = CustomerId of int
+    type CustomerInfo = { CustomerId: CustomerId; IsVip: bool }
+
+    type CustomerStatus =
+        | Normal of CustomerInfo'
+        | Vip of CustomerInfo'
+
+    and CustomerInfo' = { CustomerId: CustomerId }
+
+    type Order =
+        { OrderId: OrderId
+          CustomerStatus: CustomerStatus }
+
+    type LoyaltyCardId = LoyaltyCardId of string
+
+    type CustomerInfo'' =
+        { CustomerId: CustomerId
+          VipStatus: VipStatus
+          LoyaltyCardStatus: LoyaltyCardStatus }
+
+    and VipStatus =
+        | Normal
+        | Vip
+
+    and LoyaltyCardStatus =
+        | None
+        | LoyaltyCard of LoyaltyCardId
+
+
+type ResultBuilder() =
+    member this.Return(x) = Ok x
+    member this.Bind(x, f) = Result.bind f x
+
+let result = ResultBuilder()
+
+module C130201 =
+
+    module Domain =
+        type UnvalidatedCustomerInfo = { VipStatus: string }
+
+    module Dto =
+        type CustomerInfo = { VipStatus: string }
+
+    type VipStatus =
+        | Normal
+        | Vip
+
+    module VipStatus =
+        let create _ = Vip
+
+    type CustomerInfo = { VipStatus: VipStatus }
+
+    let validateCustomerInfo (unvalidatedCustomerInfo: Domain.UnvalidatedCustomerInfo) =
+        result {
+            let vipStatus = VipStatus.create unvalidatedCustomerInfo.VipStatus
+
+            let customerInfo: CustomerInfo = { VipStatus = vipStatus }
+            return customerInfo
+        }
+
+module C130202 =
+    type PricedOrderWithShippingMethod = Undefined
+
+    type FreeVipShipping = PricedOrderWithShippingMethod -> PricedOrderWithShippingMethod
