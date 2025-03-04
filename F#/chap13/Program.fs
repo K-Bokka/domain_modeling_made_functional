@@ -1,4 +1,6 @@
-﻿printfn "Chapter 13"
+﻿open System.Collections.Generic
+
+printfn "Chapter 13"
 
 type Undefined = Undefined of string
 let undefined _ = failwith "Not Impl"
@@ -167,3 +169,60 @@ module C130202 =
     type PricedOrderWithShippingMethod = Undefined
 
     type FreeVipShipping = PricedOrderWithShippingMethod -> PricedOrderWithShippingMethod
+
+module C1303 =
+    // C130301
+    type PromotionCode = PromotionCode of string
+    type ValidatedOrder = { PromotionCode: PromotionCode option }
+    type OrderDto = { PromotionCode: string }
+    type UnvalidatedOrder = { PromotionCode: string }
+
+    // C130302
+    type ProductCode = ProductCode of string
+    type Price = Price of decimal
+    type GetProductPrice = ProductCode -> Price
+
+    // option を渡すのは不自然
+    // 言われてみれば確かに... あまり意識したことがなかった
+    type GetPricingFunction = PromotionCode option -> GetProductPrice
+
+    type PricingMethod =
+        | Standard
+        | Promotion of PromotionCode
+
+    type ValidatedOrder' = { PricingMethod: PricingMethod }
+
+    type GetPricingFunction' = PricingMethod -> GetProductPrice
+
+    type PricedOrder = Undefined
+
+    type PriceOrder =
+        GetPricingFunction' // 依存
+            -> ValidatedOrder' // 入力
+            -> PricedOrder // 出力
+
+    // C130303
+    type GetStandardPriceTable = unit -> IDictionary<ProductCode, Price>
+    type GetPromotionPriceTable = PromotionCode -> IDictionary<ProductCode, Price>
+
+    let getPricingFunction
+        (standardPrices: GetStandardPriceTable)
+        (promoPrices: GetPromotionPriceTable)
+        : GetPricingFunction' =
+
+        let getStandardPrice: GetProductPrice =
+            let standardPrice = standardPrices ()
+            fun productCode -> standardPrice.[productCode]
+
+        let getPromotionPrice promotionCode : GetProductPrice =
+            let promotionPrice = promoPrices promotionCode
+
+            fun productCode ->
+                match promotionPrice.TryGetValue productCode with
+                | true, price -> price
+                | false, _ -> getStandardPrice productCode
+
+        fun pricingMethod ->
+            match pricingMethod with
+            | Standard -> getStandardPrice
+            | Promotion promotionCode -> getPromotionPrice promotionCode
