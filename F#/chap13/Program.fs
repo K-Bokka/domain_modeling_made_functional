@@ -173,6 +173,10 @@ module C130202 =
 module C1303 =
     // C130301
     type PromotionCode = PromotionCode of string
+
+    module PromotionCode =
+        let value (PromotionCode v) = v
+
     type ValidatedOrder = { PromotionCode: PromotionCode option }
     type OrderDto = { PromotionCode: string }
     type UnvalidatedOrder = { PromotionCode: string }
@@ -190,7 +194,11 @@ module C1303 =
         | Standard
         | Promotion of PromotionCode
 
-    type ValidatedOrder' = { PricingMethod: PricingMethod }
+    type ValidatedOrder' =
+        { PricingMethod: PricingMethod
+          OrderLines: ValidatedOrderLine list }
+
+    and ValidatedOrderLine = { ProductCode: ProductCode }
 
     type GetPricingFunction' = PricingMethod -> GetProductPrice
 
@@ -226,3 +234,46 @@ module C1303 =
             match pricingMethod with
             | Standard -> getStandardPrice
             | Promotion promotionCode -> getPromotionPrice promotionCode
+
+    // C130304
+    type CommentLine = CommentLine of string
+
+    module CommentLine =
+        let create str = CommentLine str
+
+    type PriceOrderProductLine =
+        { ProductCode: ProductCode
+          Price: Price }
+
+    type PricedOrderLine =
+        | Product of PriceOrderProductLine
+        | Comment of CommentLine
+
+    let toPricedOrderLine orderLine = undefined ()
+
+    type PricedOrder' = { OrderLines: PricedOrderLine list }
+
+    type PriceOrder' =
+        GetPricingFunction' // 依存
+            -> ValidatedOrder' // 入力
+            -> PricedOrder' // 出力
+
+    let priceOrder: PriceOrder' =
+        fun getPricingFunction validatedOrder ->
+            let getProductPrice = getPricingFunction validatedOrder.PricingMethod
+
+            let productOrderLines =
+                validatedOrder.OrderLines |> List.map (toPricedOrderLine getProductPrice)
+
+            let orderLines =
+                match validatedOrder.PricingMethod with
+                | Standard -> productOrderLines
+                | Promotion promotion ->
+                    let promoCode = promotion |> PromotionCode.value
+
+                    let commentLine =
+                        $"Applied promotion %s{promoCode}" |> CommentLine.create |> Comment
+
+                    List.append productOrderLines [ commentLine ]
+
+            { OrderLines = orderLines }
