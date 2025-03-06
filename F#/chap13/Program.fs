@@ -1,4 +1,5 @@
-﻿open System.Collections.Generic
+﻿open System
+open System.Collections.Generic
 
 printfn "Chapter 13"
 
@@ -299,3 +300,24 @@ module C1303 =
         | ShippableOrderPlaced of ShippableOrderPlaced
         | BillableOrderPlaced of BillableOrderPlaced
         | AcknowledgmentSent of OrderAcknowledgmentSent
+
+module C1304 =
+    let isBusinessHour hour = 9 <= hour && hour <= 17
+
+    let businessHoursOnly getHour onError onSuccess =
+        let hour = getHour ()
+        if isBusinessHour hour then onSuccess () else onError ()
+
+    type ValidationError = Undefined
+
+    type PlaceOrderError =
+        | Validation of ValidationError
+        | OutsideBusinessHours
+
+    let placeOrder unvalidatedOrder = undefined ()
+
+    let placeOrderInBusinessHours unvalidatedOrder =
+        let onError () = Error OutsideBusinessHours
+        let onSuccess () = placeOrder unvalidatedOrder
+        let getHour () = DateTime.Now.Hour
+        businessHoursOnly getHour onError onSuccess
