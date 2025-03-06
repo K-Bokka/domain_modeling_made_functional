@@ -277,3 +277,25 @@ module C1303 =
                     List.append productOrderLines [ commentLine ]
 
             { OrderLines = orderLines }
+
+    // C130306
+    type OrderId = OrderId of string
+    type Address = Address of string
+
+    type ShippableOrderLine =
+        { ProductCode: ProductCode
+          Quantity: float }
+
+    type ShippableOrderPlaced =
+        { OrderId: OrderId
+          ShippingAddress: Address
+          ShipmentLines: ShippableOrderLine list }
+
+    type BillableOrderPlaced = Undefined
+
+    type OrderAcknowledgmentSent = Undefined
+
+    type PlaceOrderEvent =
+        | ShippableOrderPlaced of ShippableOrderPlaced
+        | BillableOrderPlaced of BillableOrderPlaced
+        | AcknowledgmentSent of OrderAcknowledgmentSent
