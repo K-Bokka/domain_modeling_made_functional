@@ -1,4 +1,5 @@
-﻿open System.Collections.Generic
+﻿open System
+open System.Collections.Generic
 
 printfn "Chapter 13"
 
@@ -173,6 +174,10 @@ module C130202 =
 module C1303 =
     // C130301
     type PromotionCode = PromotionCode of string
+
+    module PromotionCode =
+        let value (PromotionCode v) = v
+
     type ValidatedOrder = { PromotionCode: PromotionCode option }
     type OrderDto = { PromotionCode: string }
     type UnvalidatedOrder = { PromotionCode: string }
@@ -190,7 +195,11 @@ module C1303 =
         | Standard
         | Promotion of PromotionCode
 
-    type ValidatedOrder' = { PricingMethod: PricingMethod }
+    type ValidatedOrder' =
+        { PricingMethod: PricingMethod
+          OrderLines: ValidatedOrderLine list }
+
+    and ValidatedOrderLine = { ProductCode: ProductCode }
 
     type GetPricingFunction' = PricingMethod -> GetProductPrice
 
@@ -226,3 +235,89 @@ module C1303 =
             match pricingMethod with
             | Standard -> getStandardPrice
             | Promotion promotionCode -> getPromotionPrice promotionCode
+
+    // C130304
+    type CommentLine = CommentLine of string
+
+    module CommentLine =
+        let create str = CommentLine str
+
+    type PriceOrderProductLine =
+        { ProductCode: ProductCode
+          Price: Price }
+
+    type PricedOrderLine =
+        | Product of PriceOrderProductLine
+        | Comment of CommentLine
+
+    let toPricedOrderLine orderLine = undefined ()
+
+    type PricedOrder' = { OrderLines: PricedOrderLine list }
+
+    type PriceOrder' =
+        GetPricingFunction' // 依存
+            -> ValidatedOrder' // 入力
+            -> PricedOrder' // 出力
+
+    let priceOrder: PriceOrder' =
+        fun getPricingFunction validatedOrder ->
+            let getProductPrice = getPricingFunction validatedOrder.PricingMethod
+
+            let productOrderLines =
+                validatedOrder.OrderLines |> List.map (toPricedOrderLine getProductPrice)
+
+            let orderLines =
+                match validatedOrder.PricingMethod with
+                | Standard -> productOrderLines
+                | Promotion promotion ->
+                    let promoCode = promotion |> PromotionCode.value
+
+                    let commentLine =
+                        $"Applied promotion %s{promoCode}" |> CommentLine.create |> Comment
+
+                    List.append productOrderLines [ commentLine ]
+
+            { OrderLines = orderLines }
+
+    // C130306
+    type OrderId = OrderId of string
+    type Address = Address of string
+
+    type ShippableOrderLine =
+        { ProductCode: ProductCode
+          Quantity: float }
+
+    type ShippableOrderPlaced =
+        { OrderId: OrderId
+          ShippingAddress: Address
+          ShipmentLines: ShippableOrderLine list }
+
+    type BillableOrderPlaced = Undefined
+
+    type OrderAcknowledgmentSent = Undefined
+
+    type PlaceOrderEvent =
+        | ShippableOrderPlaced of ShippableOrderPlaced
+        | BillableOrderPlaced of BillableOrderPlaced
+        | AcknowledgmentSent of OrderAcknowledgmentSent
+
+module C1304 =
+    let isBusinessHour hour = 9 <= hour && hour <= 17
+
+    let businessHoursOnly getHour onError onSuccess =
+        let hour = getHour ()
+        if isBusinessHour hour then onSuccess () else onError ()
+
+    type ValidationError = Undefined
+
+    type PlaceOrderError =
+        | Validation of ValidationError
+        | OutsideBusinessHours
+
+    let placeOrder unvalidatedOrder = undefined ()
+
+    let placeOrderInBusinessHours unvalidatedOrder =
+        let onError () = Error OutsideBusinessHours
+        let onSuccess () = placeOrder unvalidatedOrder
+        let getHour () = DateTime.Now.Hour
+        businessHoursOnly getHour onError onSuccess
